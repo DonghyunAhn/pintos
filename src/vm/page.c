@@ -14,7 +14,7 @@
 /* Acquires lock on the thread HOLDER's supplementary page table. */
 void
 lock_supplement_page_table (struct thread * holder){
- if (DEBUG_DEADLOCK)
+ if (LOCK_ERROR)
    printf ("thread %p acquires sptl of %p\n", thread_current (), holder);
  lock_acquire (&holder->supplementary_page_table_lock);
 }
@@ -22,7 +22,7 @@ lock_supplement_page_table (struct thread * holder){
 /* Releases lock on the thread HOLDER's supplementary page table. */
 void
 unlock_supplement_page_table (struct thread * holder){
- if (DEBUG_DEADLOCK)
+ if (LOCK_ERROR)
    printf ("thread %p releases sptl of %p\n", thread_current (), holder);
  lock_release (&holder->supplementary_page_table_lock);
 }
@@ -30,7 +30,7 @@ unlock_supplement_page_table (struct thread * holder){
 /* Acquires lock on the thread HOLDER's page directory. */
 void
 lock_pagedir (struct thread * holder){
- if (DEBUG_DEADLOCK)
+ if (LOCK_ERROR)
    printf ("thread %p acquires pdl of %p\n", thread_current (), holder);
  lock_acquire (&holder->pagedir_lock);
 }
@@ -38,7 +38,7 @@ lock_pagedir (struct thread * holder){
 /* Releases lock on the thread HOLDER's page directory. */
 void
 unlock_pagedir (struct thread * holder){
- if (DEBUG_DEADLOCK)
+ if (LOCK_ERROR)
    printf ("thread %p releases pdl of %p\n", thread_current (), holder);
  lock_release (&holder->pagedir_lock);
 }
@@ -79,7 +79,7 @@ add_supplementary_page(struct page* given_page){
   add_on->read_bytes = given_page->read_bytes;
   add_on->status = given_page->status;
   add_on->writable = given_page->writable;
-  elem = hash_insert(&curr->supplementary_page_table,&add_on->elem);
+  elem = hash_insert(&thread_current()->supplementary_page_table,&add_on->elem);
   return add_on;
 }
 

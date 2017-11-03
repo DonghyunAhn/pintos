@@ -7,5 +7,6 @@ threads/init.o: ../../threads/init.c ../../threads/init.h \
   ../../devices/timer.h ../../lib/round.h ../../devices/vga.h \
   ../../threads/interrupt.h ../../threads/io.h ../../threads/loader.h \
   ../../threads/malloc.h ../../threads/palloc.h ../../threads/pte.h \
-  ../../threads/vaddr.h ../../threads/thread.h ../../lib/kernel/list.h \
-  ../../threads/synch.h ../../tests/threads/tests.h
+  ../../threads/vaddr.h ../../threads/thread.h ../../lib/kernel/hash.h \
+  ../../lib/kernel/list.h ../../lib/kernel/list.h ../../threads/synch.h \
+  ../../tests/threads/tests.h

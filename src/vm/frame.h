@@ -14,7 +14,7 @@ struct frame{
 
 };
 
-void init_frame(void);
+void init_frame();
 bool add_frame(void *addr, void *vaddr);
 void delete_frame(void *addr);
 void evict_frame(void *vaddr, struct frame *old);

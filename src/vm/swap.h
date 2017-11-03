@@ -6,7 +6,7 @@
 #include "threads/thread.h"
 #include "vm/page.h"
 
-void init_swap (void);
+void init_swap ();
 void delete_swap(struct page * spg);
 void swap_in (disk_sector_t index, void * pg_vaddr);
 

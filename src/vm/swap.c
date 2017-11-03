@@ -19,7 +19,11 @@ static struct disk * swap_disk;
 // Bitmap for manage swap pool
 static struct bitmap * swap_pool;
 // mutex for swap pool
+static struct lock swap_lock;
+
 /* Acquries the swap_lock. */
+
+
 static void
 lock_swap (void){
   if (LOCK_ERROR)
@@ -36,8 +40,8 @@ unlock_swap (void){
 }
 
 void
-init_swap(void){
-  swap_disk = dist_get(1,1); //1:1
+init_swap(){
+  swap_disk = disk_get(1,1); //1:1
   swap_pool = bitmap_create(disk_size(swap_disk)/ PAGE_SIZE_IN_SECTORS);
   bitmap_set_all (swap_pool, false);
   lock_init(&swap_lock);
@@ -53,8 +57,9 @@ delete_swap(struct page *spg) {
 //copy the swap space with index, to virtual address of page
 void
 swap_in (disk_sector_t index, void * pg_vaddr){
-  for (size_t i=0; i<PAGE_SIZE_IN_SECTORS;i++){
-    disk_read(swap_disk, index*PAGE_SIZE_IN_SECTORS+i, pg+i*DISK_SECTOR_SIZE);
+  size_t i;
+  for (i=0; i<PAGE_SIZE_IN_SECTORS;i++){
+    disk_read(swap_disk, index*PAGE_SIZE_IN_SECTORS+i, pg_vaddr+i*DISK_SECTOR_SIZE);
   }
   lock_swap();
   //After swap_in, need to mark empty on swap pool

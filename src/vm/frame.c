@@ -19,7 +19,7 @@ static struct list_elem * issued_frame;
 
 //Initialize frame_table, frame_mutex. Called on threads/init.c
 void
-init_frame(void){
+init_frame(){
   list_init(&frame_table);
   issued_frame = list_end(&frame_table);
   lock_init(&frame_mutex);
@@ -43,20 +43,20 @@ unlock_frame(void){
 // vaddr is corresponding user virtual address.
 bool
 add_frame(void * addr, void * vaddr){
-  struct frame * fr = (struct frame *)(malloc (sizeof)(struct frame));
+  struct frame * fr = (struct frame *)(malloc (sizeof(struct frame)));
   if (fr==NULL) return false;
   lock_frame();
   fr->address = addr;
   fr->holder = thread_current();
   fr->vaddr = vaddr;
-  list_push_front(&frame_table, &fr->elem);
+  list_push_front(&frame_table, &fr->frame_elem);
   unlock_frame();
   return true;
 }
 
 void
 delete_frame(void * addr) {
-  ASSERT(address!=NULL);
+  ASSERT(addr!=NULL);
   lock_frame();
   struct list_elem * elem;
   struct frame * fr;

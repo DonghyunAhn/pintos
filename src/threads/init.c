@@ -20,6 +20,11 @@
 #include "threads/palloc.h"
 #include "threads/pte.h"
 #include "threads/thread.h"
+#ifdef VM
+#include "vm/frame.h"
+#include "vm/swap.h"
+#include "vm/page.h"
+#endif
 #ifdef USERPROG
 #include "userprog/process.h"
 #include "userprog/exception.h"
@@ -28,10 +33,6 @@
 #include "userprog/tss.h"
 #else
 #include "tests/threads/tests.h"
-#endif
-#ifdef VM
-#include "vm/frame.h"
-#include "vm/swap.h"
 #endif
 #ifdef FILESYS
 #include "devices/disk.h"
