@@ -5,6 +5,7 @@
 #include "threads/thread.h"
 #include "userprog/pagedir.h"
 #include "vm/page.h"
+#include "vm/swap.h"
 
 // list of physical frames in memory
 // elem as elem in struct frame
@@ -50,6 +51,7 @@ add_frame(void * addr, void * vaddr){
   fr->vaddr = vaddr;
   list_push_front(&frame_table, &fr->elem);
   unlock_frame();
+  return true;
 }
 
 void
@@ -77,7 +79,7 @@ delete_frame(void * addr) {
 void evict_frame(void * vaddr, struct frame *old){
   lock_frame();
   struct frame * victim;
-  struc thread * cur = thread_current();
+  struct thread * cur = thread_current();
   bool flag = true;
   while(flag){
     //second chance algorithm

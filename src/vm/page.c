@@ -16,7 +16,7 @@ void
 lock_supplement_page_table (struct thread * holder){
  if (DEBUG_DEADLOCK)
    printf ("thread %p acquires sptl of %p\n", thread_current (), holder);
- lock_acquire (&holder->suppl_page_table_lock);
+ lock_acquire (&holder->supplementary_page_table_lock);
 }
 
 /* Releases lock on the thread HOLDER's supplementary page table. */
@@ -24,7 +24,7 @@ void
 unlock_supplement_page_table (struct thread * holder){
  if (DEBUG_DEADLOCK)
    printf ("thread %p releases sptl of %p\n", thread_current (), holder);
- lock_release (&holder->suppl_page_table_lock);
+ lock_release (&holder->supplementary_page_table_lock);
 }
 
 /* Acquires lock on the thread HOLDER's page directory. */
