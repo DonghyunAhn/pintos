@@ -49,7 +49,7 @@ add_frame(void * addr, void * vaddr){
   fr->address = addr;
   fr->holder = thread_current();
   fr->vaddr = vaddr;
-  list_push_front(&frame_table, &fr->elem);
+  list_push_front(&frame_table, &fr->frame_elem);
   unlock_frame();
   return true;
 }
