@@ -537,6 +537,7 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 static bool
 setup_stack (void **esp)
 {
+  //for stack growth
   uint8_t *kpage;
   bool success = false;
 

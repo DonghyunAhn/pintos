@@ -67,4 +67,34 @@ swap_in (disk_sector_t index, void * pg_vaddr){
   unlock_swap();
 }
 
-void * swap_out(void * vaddr){};
+//call conditinon : when palloc fails
+//what to do : select eviction frame, and
+void * swap_out(void * vaddr){
+  size_t pg_index;
+  size_t i;
+  struct frame * old;
+  evict_frame(vaddr, old);
+  struct page * sup_page = search_supplementary_page(old->holder, old->vaddr);
+  w_flag = spg->writable;
+  if(w_flag){
+    //write on disk : victim go into swap space
+    lock_swap();
+    pg_index = bitmap_scan_and_flip(swap_pool,0,1,false);
+    unlock_swap();
+    if (pg_index == BITMAP_ERROR) return NULL;
+    for(i=0;i<PAGE_SIZE_IN_SECTORS;i++){
+      disk_write(swap_disk, pg_index*PAGE_SIZE_IN_SECTORS+i, old->address+i*DISK_SECTOR_SIZE);
+      sup_page->status = IN_SWAP;
+      sup_page->offset = pg_index; // record pg_index to remember the swap disk index
+    }
+  }
+  else{
+    sup_page->status = IN_FILE;
+  }
+  lock_pagedir(old->holder);
+  pagedir_clear_page(old->holder->pagedir, old->vaddr);
+  unlock_pagedir(old->holder);
+  // not u yet
+  if (thread_current()!= old->holder) unlock_supplement_page_table(old->holder);
+  return old->address;
+};

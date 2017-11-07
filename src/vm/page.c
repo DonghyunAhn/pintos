@@ -65,6 +65,9 @@ init_supplementary_page_table(struct thread * holder){
   return hash_init(&holder->supplementary_page_table, page_hash, cmp_page, NULL);
 }
 
+//setter function on supplementary_page_table :
+
+
 // add given page to supplementary_page_table
 // in order to safely do this process, need to copy given page on some new struct page
 // and then add it on SPT
@@ -73,6 +76,7 @@ add_supplementary_page(struct page* given_page){
   struct page * add_on = (struct page * )(malloc(sizeof(struct page)));
   struct hash_elem * elem;
   if (add_on ==NULL) return NULL;
+  //use on setter fucntion?
   ASSERT (given_page->address < PHYS_BASE);
   add_on->address = given_page->address;
   add_on->offset = given_page->offset;
@@ -90,4 +94,63 @@ search_supplementary_page(struct thread * holder, void * address){
   struct hash_elem * target_elem = hash_find(&holder->supplementary_page_table, &sup_page->elem);
   if (target_elem==NULL) return NULL;
   return hash_entry(target_elem, struct page, elem);
+}
+
+bool
+load_page (struct page *sup_page){
+    void * pg_alloc = palloc_get_page(PAL_USER);
+    uint32_t modify_offset;
+    enum page_status status;
+    struct thread * curr = thread_current();
+    ASSERT (sup_page->address < PHYS_BASE);
+    bool success;
+    bool dir_set;
+    //success to page allocation
+    if (pg_alloc!= NULL){
+      success = add_frame(pg_alloc, sup_page->address);
+      if (!success){
+        palloc_free_page(pg_alloc);
+        return false;
+      }
+    }
+    //else, try swap out with eviction
+    else{
+      //swap out
+      //pg must get address
+      //so pg = swap_out(arguments)
+      //after that...
+      //if (pg_alloc == NULL) return false;
+    }
+    switch(sup_page -> status)
+    {
+      case IN_MEMORY:
+        printf("ERROR ON load_page : non-loaded page is already in memory");
+      // load the page from swap, using offset
+      case IN_SWAP:
+        swap_in(sup_page->offset, pg_alloc);
+        break;
+      case IN_FILE:
+        //use file_read_at function
+        int read_bytes_load = file_read_at(curr->executable, pg_alloc, sup_page->read_bytes, sup_page->offset)
+        if(read_bytes_load!=(int)sup_page->read_bytes){
+          palloc_free_page(pg_alloc);
+          return false;
+        }
+        //make zeros
+        memset (pg_alloc + sup_page->read_bytes, 0, PGSIZE-sup_page->read_bytes);
+        modify_offset = sup_page->offset;
+        break;
+      case ON_STACK:
+        memset (pg_alloc, 0, PGSIZE);
+        break;
+      default:
+        ASSERT (false);
+    }
+    sup_page->status = IN_MEMORY;
+    sup_page->offset = modify_offset;
+    lock_pagedir(curr);
+    dir_set = pagedir_set_page(curr->pagedir, address, pg_alloc, sup_page->writterble);
+    unlock_pagedir(curr);
+    if (!dir_set && pg_alloc != NULL) palloc_free_page(pg_alloc);
+    return dir_set;
 }
