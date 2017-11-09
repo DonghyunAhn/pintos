@@ -64,6 +64,8 @@ syscall_handler (struct intr_frame *f)
 {
   if(!valid_user_addr(f->esp) || !valid_user_addr(f->esp + 4) || !valid_user_addr(f->esp + 8) || !valid_user_addr(f->esp + 12))
     exit(-1);
+
+  thread_current()->esp = f->esp;
   int syscall_number;
   syscall_number = *(int *)(f->esp);
   //printf("syscall : %d,  %d\n", syscall_number, thread_current()->tid);

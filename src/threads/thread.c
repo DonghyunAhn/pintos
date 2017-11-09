@@ -267,7 +267,7 @@ thread_create (const char *name, int priority,
   sf = alloc_frame (t, sizeof *sf);
   sf->eip = switch_entry;
 
-#ifdef USERPROG
+#ifdef USERPROG  
   /* userprog */
   struct child_thread * ch = (struct child_thread *)malloc(sizeof(struct child_thread));
   ch->tid = t->tid;
@@ -275,7 +275,7 @@ thread_create (const char *name, int priority,
   ch->exit_status = -1;
   ch->dead = 0;
   list_push_back(&thread_current()->child_list, &ch->ch_elem);
-
+  
   t->parent = thread_current();
   lock_init(&thread_current()->loadlock);
   cond_init(&thread_current()->loadcond);
@@ -590,8 +590,9 @@ init_thread (struct thread *t, const char *name, int priority)
 #endif
 
 #ifdef VM
-  lock_init(&t->supplementary_page_table_lock);
-  lock_init(&t->pagedir_lock);
+  lock_init(&t->spt_lock);
+
+
 #endif
 
 }

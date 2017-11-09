@@ -1,8 +1,8 @@
 #ifndef THREADS_THREAD_H
 #define THREADS_THREAD_H
 
-#include <debug.h>
 #include <hash.h>
+#include <debug.h>
 #include <list.h>
 #include <stdint.h>
 #include <threads/synch.h>
@@ -35,7 +35,7 @@ truct child_thread
    73   struct thread* thr;
     74   struct thread* parent;
      75   struct list_elem ch_elem;
-      76
+      76 
        77 }
        (at offset 0).  The rest of the page is reserved for the
    thread's kernel stack, which grows downward from the top of
@@ -100,6 +100,7 @@ struct thread
     int64_t allow_wakeuptick;           /* For sleep : Tick that allows wakeup */
     int org_priority;                   /* Original Priority before donation */
     struct list_elem sleep_elem;        /* list elem for sleep */
+    void * esp;                         /* syscall esp */
 
     /* Shared between thread.c and synch.c. */
     struct list_elem elem;              /* List element. */
@@ -107,11 +108,10 @@ struct thread
     struct list locks;                  /* list of locks */
     struct lock *blocked;               /* the lock that blocks current thread*/
 
-    uint32_t *pagedir;                  /* Page directory. */
 
 #ifdef USERPROG
     /* Owned by userprog/process.c. */
-
+    uint32_t *pagedir;                  /* Page directory. */
     int exit_status;
     int child_exec;                    /* child success to load exec file */
     bool wait_child;                     /* child wait status */
@@ -125,13 +125,12 @@ struct thread
     struct lock loadlock;             /* lock for load file of child */
     struct condition loadcond;        /* condvar for siganl load success */
     struct file * exec_file;
+#ifdef VM
+
+    struct hash suppl_page_table;     /* supplementary page table */
+    struct lock spt_lock;             /* supplementary page table lock */
 
 #endif
-
-#ifdef VM
-  struct lock pagedir_lock;
-  struct lock supplementary_page_table_lock;
-  struct hash supplementary_page_table;
 #endif
 
     /* Owned by thread.c. */

@@ -4,8 +4,10 @@
 #include "userprog/gdt.h"
 #include "threads/interrupt.h"
 #include "threads/thread.h"
-
+#include "threads/vaddr.h"
 /* Number of page faults processed. */
+#define MAX_STACK 0x8000000
+
 static long long page_fault_cnt;
 
 static void kill (struct intr_frame *);
@@ -119,6 +121,7 @@ kill (struct intr_frame *f)
    can find more information about both of these in the
    description of "Interrupt 14--Page Fault Exception (#PF)" in
    [IA32-v3a] section 5.15 "Exception and Interrupt Reference". */
+
 static void
 page_fault (struct intr_frame *f) 
 {
@@ -126,7 +129,7 @@ page_fault (struct intr_frame *f)
   bool write;        /* True: access was write, false: access was read. */
   bool user;         /* True: access by user, false: access by kernel. */
   void *fault_addr;  /* Fault address. */
-
+  void *fault_pg;    /* start addr for faulted page */
   /* Obtain faulting address, the virtual address that was
      accessed to cause the fault.  It may point to code or to
      data.  It is not necessarily the address of the instruction
@@ -151,11 +154,51 @@ page_fault (struct intr_frame *f)
   /* To implement virtual memory, delete the rest of the function
      body, and replace it with code that brings in the page to
      which fault_addr refers. */
+#if VM
+  struct thread * cur = thread_current();
+  void * stack;
+  fault_pg = pg_round_down(fault_addr);   /* start addr of page where page_fault occurs */
+  /* read-only memory */
+  if(!not_present && write){
+    goto INVALID_ACCESS;
+  }
+
+  if(user)
+    stack = f->esp;   /* page fault in user memory */
+  else
+    stack = cur->esp; /* page fault from syscall */
+  //lock_supplement_page_table(cur);
+  //spte 
+  struct suppl_pte * spte = spt_find(thread_current(),fault_addr);
+
+  bool on_frame, valid_size;
+  /* stack is on the frame ? */
+  on_frame = (stack <= fault_addr || stack == fault_addr - 4 || stack == fault_addr -32);
+  /* stack is not too large ? */
+  valid_size = (PHYS_BASE - fault_addr <= MAX_STACK || fault_addr <PHYS_BASE);
+
+  if( spte==NULL && on_frame && valid_size){
+    /* grow stack */
+    spt_stackgrowth(fault_addr);  
+  }
+  if (load_page(spte)) return; 
+  goto INVALID_ACCESS;
+
+  /* if page fault occurs due to access kernel memory or attempt to write read-ony file*/
+INVALID_ACCESS :
+#endif
+  if(!user){
+    f->eip = (void *)f->eax;
+    f->eax = 0xffffffff;
+    return;
+  }
+  
   printf ("Page fault at %p: %s error %s page in %s context.\n",
           fault_addr,
           not_present ? "not present" : "rights violation",
           write ? "writing" : "reading",
           user ? "user" : "kernel");
+
+
   kill (f);
 }
-

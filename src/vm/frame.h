@@ -1,22 +1,29 @@
 #ifndef VM_FRAME_H
 #define VM_FRAME_H
 
+#include "threads/thread.h"
 #include <list.h>
 #include <stdbool.h>
+#include "threads/palloc.h"
 
-#define LOCK_ERROR (false)
 
-struct frame{
-  void * address;
-  struct thread * holder;
-  void * vaddr;
-  struct list_elem frame_elem;
+/* frame table entry structure */
+struct frame_table_entry{
+  
+  struct thread * holder;   /* holder thread */
+  
+	void * fpage;             /* frame page address */
+  void * upage;             /* user page address */
 
+  struct list_elem elem;    /* elem for hash table */
+	bool swap;						/* boolean for swap */
 };
 
-void init_frame();
-bool add_frame(void *addr, void *vaddr);
-void delete_frame(void *addr);
-void evict_frame(void *vaddr, struct frame *old);
+/* basic functions */
+void frame_init(void);
+void * frame_allocate(void * upage , enum palloc_flags flag);
+void frame_remove(struct frame_table_entry * fte);
+struct frame_table_entry * frame_find(void * upage);
+void frame_evict(void);
 
-#endif
+#endif /* vm/frame.h */

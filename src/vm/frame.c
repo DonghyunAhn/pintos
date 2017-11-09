@@ -1,108 +1,113 @@
-#include "vm/frame.h"
+#include <hash.h>
+#include <list.h>
 #include <stdio.h>
-#include "threads/malloc.h"
-#include "threads/synch.h"
+#include "lib/kernel/hash.h"
+#include "lib/kernel/list.h"
+
+#include "vm/frame.h"
 #include "threads/thread.h"
+#include "threads/malloc.h"
+#include "threads/palloc.h"
 #include "userprog/pagedir.h"
-#include "vm/page.h"
-#include "vm/swap.h"
+#include "threads/vaddr.h"
 
-// list of physical frames in memory
-// elem as elem in struct frame
-static struct list frame_table;
+static struct list frame_table; /* frame table. */
+static struct lock frame_lock; /* for synchronization of managing frame table */
 
-// mutex lock for frame
-static struct lock frame_mutex;
+void init_frame(void);
+void * allocate_frame(void * vaddr, void * paddr);
+void free_frame(void *); 
 
-// current element of issued frame
-static struct list_elem * issued_frame;
-
-//Initialize frame_table, frame_mutex. Called on threads/init.c
 void
-init_frame(){
-  list_init(&frame_table);
-  issued_frame = list_end(&frame_table);
-  lock_init(&frame_mutex);
+frame_init(){
+
+	list_init(&frame_table);
+	lock_init(&frame_lock);	
+
 }
 
-// same as lock_acquire(&frame_mutex);, but check for LOCK ERROR
-static void
-lock_frame(void){
-  if(LOCK_ERROR) printf("thread %p acquire frame error\n", thread_current());
-  lock_acquire(&frame_mutex);
-}
+/* allocate the frame and add it to the frame table. */
+/* if allocation successes, return frame address. */
+void *
+frame_allocate(void* upage , enum palloc_flags flag){
+  
+  struct frame_table_entry * fte = malloc(sizeof(struct frame_table_entry));
 
-// same as lock_release(&frame_mutex);, but check for LOCK ERROR
-static void
-unlock_frame(void){
-  if(LOCK_ERROR) printf("thread %p releases frame error\n", thread_current());
-  lock_release(&frame_mutex);
-}
-
-// Add information of frame at kernel virtual address
-// vaddr is corresponding user virtual address.
-bool
-add_frame(void * addr, void * vaddr){
-  struct frame * fr = (struct frame *)(malloc (sizeof(struct frame)));
-  if (fr==NULL) return false;
-  lock_frame();
-  fr->address = addr;
-  fr->holder = thread_current();
-  fr->vaddr = vaddr;
-  list_push_front(&frame_table, &fr->frame_elem);
-  unlock_frame();
-  return true;
+  lock_acquire(&frame_lock);
+  void * frame = palloc_get_page(PAL_USER | flag);
+  
+  /* if physical memory is full, evict some frame */
+  if(frame == NULL){
+    frame_evict();
+    frame = palloc_get_page(PAL_USER | flag);
+  }
+  fte->holder = thread_current();
+  fte->fpage = frame;
+  fte->upage = upage;
+  fte->swap = -1;
+  
+  /* insert fte to the frame table */
+  list_push_back(&frame_table, &fte->elem);
+  lock_release(&frame_lock);
+  return frame;
 }
 
 void
-delete_frame(void * addr) {
-  ASSERT(addr!=NULL);
-  lock_frame();
-  struct list_elem * elem;
-  struct frame * fr;
-  fr = NULL;
-  for (elem=list_begin(&frame_table); elem!=list_end(&frame_table);elem = list_next(elem)){
-    struct frame * fr_sub = list_entry(elem, struct frame, frame_elem);
-    if(fr_sub->address == addr){
-      // before removeing, move issued_frame for maintainance.
-      if(issued_frame==elem) issued_frame = list_remove(elem);
-      else list_remove(elem);
-      fr = fr_sub;
+frame_remove(struct frame_table_entry * fte){
+  
+  lock_acquire(&frame_lock);
+
+  ASSERT(fte->fpage != NULL);
+  if(!fte->swap)
+    list_remove(&fte->elem);
+
+  palloc_free_page(fte->fpage);
+  free(fte);
+  
+  lock_release(&frame_lock);
+}
+
+/* find fte from user page address */
+struct frame_table_entry *frame_find(void * upage){
+
+  struct list_elem * e = list_front(&frame_table);
+  struct frame_table_entry * fte = NULL;
+  while(e != list_back(&frame_table)){
+  
+    fte = list_entry(e, struct frame_table_entry, elem);
+    if(fte->upage == upage)
       break;
-    }
+    
+    e = list_next(e);
   }
-  if (fr!=NULL)
-    free(fr);
-  unlock_frame();
+
+  ASSERT(fte != NULL);
+  return fte;
 }
-// eviction
-void evict_frame(void * vaddr, struct frame *old){
-  lock_frame();
-  struct frame * victim;
-  struct thread * cur = thread_current();
-  bool flag = true;
-  while(flag){
-    //second chance algorithm
-    issued_frame = list_begin(&frame_table);
-    for(;issued_frame!= list_end(&frame_table); issued_frame = list_next(issued_frame)){
-      victim = list_entry(issued_frame, struct frame, frame_elem);
-      lock_pagedir(victim->holder);
-      if(pagedir_is_accessed(victim->holder->pagedir, victim->vaddr)){
-        pagedir_set_accessed(victim->holder->pagedir, victim->vaddr, false);
-      }
-      else{
-        unlock_pagedir(victim->holder);
-        // when victim->holder == cur, then lock already be held
-        if (victim->holder != cur) lock_supplement_page_table(victim->holder);
-        *old = *victim;
-        victim->holder = cur;
-        victim->vaddr = vaddr;
-        flag = false;
-        break;
-      }
-      unlock_pagedir(victim->holder);
-    }
-    if (!flag) break;
+
+/* choose the frame by second chance algorithm for eviction */
+void
+frame_evict(){
+
+  lock_acquire(&frame_lock);
+  void * new_frame;
+  struct list_elem * e = list_front(&frame_table);
+  struct frame_table_entry * victim = list_entry(e, struct frame_table_entry, elem);
+
+  /* second chance algorithm */
+  while(victim->fpage == NULL || pagedir_is_accessed(victim->holder->pagedir, victim->upage)){
+  
+    if(victim->fpage != NULL)
+      pagedir_set_accessed(victim->holder->pagedir, victim->upage, false);
+    list_remove(e);
+    list_push_back(&frame_table, e);
+    e = list_front(&frame_table);
+    victim = list_entry(e, struct frame_table_entry , elem);
   }
-  unlock_frame();
+
+  list_remove(&victim->elem);
+  swap_out(victim);
+  lock_release(&frame_lock);
+  
 }
+
