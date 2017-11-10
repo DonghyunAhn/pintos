@@ -1,0 +1,20 @@
+FAIL
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (open-bad-ptr) begin
+  (open-bad-ptr) end
+  open-bad-ptr: exit(0)
+Differences in `diff -u' format:
+- (open-bad-ptr) begin
+- (open-bad-ptr) end
+- open-bad-ptr: exit(0)
++ @@@0x8048000, 4@@@0x8049000, 4@@@0x804a000, 4@@@0x804b000, 4@@@0x804c000, 4(open-bad-ptr) begin
++ open-bad-ptr: exit(-1)
+Acceptable output:
+  (open-bad-ptr) begin
+  open-bad-ptr: exit(-1)
+Differences in `diff -u' format:
+- (open-bad-ptr) begin
++ @@@0x8048000, 4@@@0x8049000, 4@@@0x804a000, 4@@@0x804b000, 4@@@0x804c000, 4(open-bad-ptr) begin
+  open-bad-ptr: exit(-1)
