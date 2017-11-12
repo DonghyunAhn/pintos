@@ -343,7 +343,8 @@ thread_name (void)
 
 /* Returns the running thread.
    This is running_thread() plus a couple of sanity checks.
-   See the big comment at the top of thread.h for details. */
+   See the big co
+   mment at the top of thread.h for details. */
 struct thread *
 thread_current (void)
 {
@@ -381,6 +382,7 @@ thread_exit (void)
 
   /* Just set our status to dying and schedule another process.
      We will be destroyed during the call to schedule_tail(). */
+
   intr_disable ();
   thread_current ()->status = THREAD_DYING;
   schedule ();

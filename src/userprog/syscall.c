@@ -4,17 +4,20 @@
 #include <stdio.h>
 #include <string.h>
 #include <syscall-nr.h>
-#include "filesys/file.h"
-#include "filesys/filesys.h"
-#include "filesys/inode.h"
 #include "threads/interrupt.h"
 #include "threads/thread.h"
 #include "threads/malloc.h"
 #include "threads/palloc.h"
 #include "threads/vaddr.h"
 #include "threads/init.h"
+#include "filesys/file.h"
+#include "filesys/filesys.h"
+#include "filesys/inode.h"
 #include "devices/input.h"
-
+#ifdef VM
+#include "vm/page.h"
+#include "vm/frame.h"
+#endif
 static void syscall_handler (struct intr_frame *);
 
 /* address validation */
@@ -64,7 +67,6 @@ syscall_handler (struct intr_frame *f)
 {
   if(!valid_user_addr(f->esp) || !valid_user_addr(f->esp + 4) || !valid_user_addr(f->esp + 8) || !valid_user_addr(f->esp + 12))
     exit(-1);
-
   thread_current()->esp = f->esp;
   int syscall_number;
   syscall_number = *(int *)(f->esp);
@@ -86,7 +88,6 @@ syscall_handler (struct intr_frame *f)
       break;
 
     case SYS_WAIT:
-    
       f->eax = (uint32_t)(wait(*(int *)(f->esp + 4)));
       break;
 
@@ -196,6 +197,7 @@ exec (const char *cmd_line)
 int 
 wait (tid_t tid)
 {
+
   return process_wait(tid);
 
 }
@@ -261,9 +263,29 @@ filesize (int fd)
 int 
 read (int fd, const void *buffer, unsigned size)
 {
-  if(get_user(buffer + size -1) == -1||!valid_user_addr((const uint8_t *)buffer) || !valid_user_addr((const uint8_t *)(buffer + size - 1)))
+  if(size == 0)
+    return 0;
+  if(buffer == NULL || !is_user_vaddr(buffer) || buffer >= PHYS_BASE)
     exit(-1);
+  if(get_user(buffer + size -1) == -1||get_user(buffer) == -1){
+    exit(-1);
+  }
   
+  struct thread * cur = thread_current();
+  void * buf_pg = pg_round_down(buffer);
+  //printf("\nbuf address :%p");
+  struct suppl_pte *spte = spt_find(cur, buf_pg);
+  int readnormal;
+  readnormal = 0;
+  if(fd_to_file(cur, fd) == NULL){
+    return -1;
+  }
+  if(spte != NULL && !spte->writable){
+    readnormal = file_read(fd_to_file(cur,fd)->file, (void *)buffer, (off_t)size);
+    if(readnormal>0)
+      return readnormal;
+    exit(-1);
+}
   int i;
   uint8_t c;
 
@@ -281,9 +303,8 @@ read (int fd, const void *buffer, unsigned size)
   }
   else
   {
-    struct thread *cur = thread_current();
     
-    if(fd_to_file(cur, fd) == NULL){;
+    if(fd_to_file(cur, fd) == NULL){
       return -1;
     }
       return file_read(fd_to_file(cur,fd)->file, (void *)buffer, (off_t)size); 

@@ -495,14 +495,14 @@ validate_segment (const struct Elf32_Phdr *phdr, struct file *file)
    or disk read error occurs. */
 static bool
 load_segment (struct file *file, off_t ofs, uint8_t *upage,
-              uint32_t read_bytes, uint32_t zero_bytes, bool writable) 
+              uint32_t read_bytes, uint32_t zero_bytes, bool writable)
 {
   ASSERT ((read_bytes + zero_bytes) % PGSIZE == 0);
   ASSERT (pg_ofs (upage) == 0);
   ASSERT (ofs % PGSIZE == 0);
-
+  struct thread * curr = thread_current();
   file_seek (file, ofs);
-  while (read_bytes > 0 || zero_bytes > 0) 
+  while (read_bytes > 0 || zero_bytes > 0)
     {
       /* Do calculate how to fill this page.
          We will read PAGE_READ_BYTES bytes from FILE
@@ -510,51 +510,70 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
       size_t page_read_bytes = read_bytes < PGSIZE ? read_bytes : PGSIZE;
       size_t page_zero_bytes = PGSIZE - page_read_bytes;
 
-      /* Get a page of memory. */
-      uint8_t *kpage = frame_allocate(upage,PAL_USER);
+  /*    uint8_t *kpage = frame_allocate(upage, PAL_USER);
+      
       if (kpage == NULL)
         return false;
 
-      /* Load this page. */
       if (file_read (file, kpage, page_read_bytes) != (int) page_read_bytes)
         {
-          frame_remove(frame_find(upage));
-          return false; 
+          frame_remove(upage);
+          return false;
         }
       memset (kpage + page_read_bytes, 0, page_zero_bytes);
 
-      /* Add the page to the process's address space. */
-      if (!install_page (upage, kpage, writable)) 
+      if (!install_page (upage, kpage, writable))
         {
-          frame_remove(frame_find(upage));
-          return false; 
+          frame_remove(upage);
+          return false;
         }
-
-      spt_allocate(upage, kpage);
-      /* Advance. */
+            */
+      
+      struct suppl_pte * spte = malloc(sizeof(struct suppl_pte));
+      spte->upage = upage;
+      spte->kpage = NULL;
+      spte->status = FROM_FILE;
+      spte->file = file;
+      spte->writable = writable;
+      spte->offset = ofs;
+      spte->read_bytes = page_read_bytes;
+      if(!(hash_insert(&curr->suppl_page_table, &spte->helem) == NULL))
+        return false;
+      //printf("s : %p\n", upage);
+      ofs += PGSIZE;
       read_bytes -= page_read_bytes;
       zero_bytes -= page_zero_bytes;
       upage += PGSIZE;
-    }
-  return true;
+      
+    } 
+  return true; 
 }
 
+
 /* Create a minimal stack by mapping a zeroed page at the top of
+  *struct suppl_pte spte;
    user virtual memory. */
 static bool
 setup_stack (void **esp) 
 {
   uint8_t *kpage;
   bool success = false;
-
-  kpage = frame_allocate(PHYS_BASE - PGSIZE , PAL_USER | PAL_ZERO);
+  struct thread * curr = thread_current();
+  kpage = frame_allocate(PHYS_BASE - PGSIZE, PAL_USER | PAL_ZERO);
+  struct suppl_pte * src = malloc(sizeof(struct suppl_pte));
+  *esp = PHYS_BASE;
+  src->upage = PHYS_BASE - PGSIZE;
+  src->kpage = kpage;
+  src->status = STACK_GROWTH; 
+  if(!(hash_insert(&curr->suppl_page_table, &src->helem) == NULL))
+    return false;
   if (kpage != NULL) 
     {
       success = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, kpage, true);
       if (success)
         *esp = PHYS_BASE;
       else
-        frame_remove(frame_find(PHYS_BASE - PGSIZE));
+        frame_remove(PHYS_BASE-PGSIZE);
     }
   return success;
 }
@@ -630,4 +649,5 @@ arg_stack (char *parse[], int token, void **esp)
   *esp -= 4;
   *((int *)*esp) = 0;
 }
+
 

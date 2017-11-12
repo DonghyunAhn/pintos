@@ -5,9 +5,13 @@
 #include "threads/interrupt.h"
 #include "threads/thread.h"
 #include "threads/vaddr.h"
+#include "vm/page.h"
+#include "vm/frame.h"
+#include "vm/swap.h"
+
 /* Number of page faults processed. */
 #define MAX_STACK 0x8000000
-
+#define USER_VADDR_LBD 0x08048000
 static long long page_fault_cnt;
 
 static void kill (struct intr_frame *);
@@ -138,7 +142,6 @@ page_fault (struct intr_frame *f)
      [IA32-v3a] 5.15 "Interrupt 14--Page Fault Exception
      (#PF)". */
   asm ("movl %%cr2, %0" : "=r" (fault_addr));
-
   /* Turn interrupts back on (they were only off so that we could
      be assured of reading CR2 before it changed). */
   intr_enable ();
@@ -157,31 +160,44 @@ page_fault (struct intr_frame *f)
 #if VM
   struct thread * cur = thread_current();
   void * stack;
+  if(fault_addr == NULL || (fault_addr >= PHYS_BASE && user) || (fault_addr <= USER_VADDR_LBD && user))
+    goto INVALID_ACCESS;
   fault_pg = pg_round_down(fault_addr);   /* start addr of page where page_fault occurs */
   /* read-only memory */
-  if(!not_present && write){
+  if(!not_present){
     goto INVALID_ACCESS;
   }
 
   if(user)
     stack = f->esp;   /* page fault in user memory */
-  else
+  else{
     stack = cur->esp; /* page fault from syscall */
+  }
+  //printf("%p,%p,%d,%d\n", fault_addr, stack, f->esp - fault_addr,write);
+  if(user && f->esp - fault_addr >= PGSIZE)
+    goto INVALID_ACCESS;
   //lock_supplement_page_table(cur);
   //spte 
-  struct suppl_pte * spte = spt_find(thread_current(),fault_addr);
-
+  struct suppl_pte * spte = spt_find(thread_current(),fault_pg);
+  //if(spte->writable == false && write)
+    //exit(-1);
   bool on_frame, valid_size;
   /* stack is on the frame ? */
-  on_frame = (stack <= fault_addr || stack == fault_addr - 4 || stack == fault_addr -32);
+  on_frame = (stack <= fault_addr || fault_addr == f->esp - 4 || fault_addr == f->esp -32);
   /* stack is not too large ? */
-  valid_size = (PHYS_BASE - fault_addr <= MAX_STACK || fault_addr <PHYS_BASE);
+  valid_size = (PHYS_BASE - fault_addr <= MAX_STACK && fault_addr <PHYS_BASE);
+  if(!valid_size)
+    goto INVALID_ACCESS;
 
-  if( spte==NULL && on_frame && valid_size){
+  if(spte==NULL){
+    if(!(on_frame && valid_size)) goto INVALID_ACCESS;
     /* grow stack */
-    spt_stackgrowth(fault_addr);  
-  }
+    spte = spt_stackgrowth(fault_pg);  
+  }    
+  if(write && !spte->writable)
+    goto INVALID_ACCESS;
   if (load_page(spte)) return; 
+
   goto INVALID_ACCESS;
 
   /* if page fault occurs due to access kernel memory or attempt to write read-ony file*/

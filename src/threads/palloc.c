@@ -44,6 +44,7 @@ static void init_pool (struct pool *, void *base, size_t page_cnt,
                        const char *name);
 static bool page_from_pool (const struct pool *, void *page);
 
+
 /* Initializes the page allocator. */
 void
 palloc_init (void) 
@@ -83,7 +84,6 @@ palloc_get_multiple (enum palloc_flags flags, size_t page_cnt)
 
   if (page_cnt == 0)
     return NULL;
-
   lock_acquire (&pool->lock);
   page_idx = bitmap_scan_and_flip (pool->used_map, 0, page_cnt, false);
   lock_release (&pool->lock);
@@ -92,7 +92,6 @@ palloc_get_multiple (enum palloc_flags flags, size_t page_cnt)
     pages = pool->base + PGSIZE * page_idx;
   else
     pages = NULL;
-
   if (pages != NULL) 
     {
       if (flags & PAL_ZERO)
@@ -172,6 +171,7 @@ init_pool (struct pool *p, void *base, size_t page_cnt, const char *name)
 
   /* Initialize the pool. */
   lock_init (&p->lock);
+  //printf("%s, %d\n", name, page_cnt);
   p->used_map = bitmap_create_in_buf (page_cnt, base, bm_pages * PGSIZE);
   p->base = base + bm_pages * PGSIZE;
 }

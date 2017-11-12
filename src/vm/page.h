@@ -25,7 +25,7 @@ struct suppl_pte{
 
 void spt_init(void);
 bool spt_allocate(void *upage, void *kpage);
-void spt_destroy(struct hash * spt);
+void spt_destroy();
 void spt_remove(struct suppl_pte * spte);
 bool spt_stakcgrowth(void* upage);
 struct suppl_pte * spt_find(struct thread *t ,void *upage);

@@ -33,14 +33,12 @@ static void spte_destroy_func(struct hash_elem *elem, void *aux UNUSED){
 
   // remove associated frame
   if (spte->kpage != NULL) {
-    ASSERT (spte->status == IN_MEMORY);
-		struct frame_table_entry *fte = frame_find(spte->upage);
-    frame_remove(fte);
+    frame_remove(spte->upage);
   }
   else if(spte->status == IN_SWAP) {
     swap_free (spte);
   }
-
+  
   // free SPTE.
   free (spte);
 }
@@ -55,7 +53,9 @@ spt_init(){
 
 bool
 spt_allocate(void *upage, void *kpage){
-
+ 
+  //printf("s : %p\n", upage);
+  ASSERT(upage != NULL && kpage != NULL);
   struct suppl_pte * spte = malloc(sizeof(struct suppl_pte));
   spte->upage = upage;
   spte->kpage = kpage;
@@ -72,9 +72,12 @@ spt_allocate(void *upage, void *kpage){
 
 }
 
-bool
+struct suppl_pte *
 spt_stackgrowth(void *upage){
+  
+  //printf("s : %p\n", upage);
   struct suppl_pte * spte = malloc (sizeof(struct suppl_pte));
+  if(!spte) return false;
   spte->upage = upage;
   spte->kpage = NULL;
   spte->status = STACK_GROWTH;
@@ -85,22 +88,20 @@ spt_stackgrowth(void *upage){
   struct hash_elem * prev;
   prev = hash_insert(&cur->suppl_page_table, &spte->helem);
   if (prev==NULL)
-    return true;
+    return spte;
   else
-    return false;
+    return NULL;
 }
 
 void 
-spt_destroy(struct hash* spt){
+spt_destroy(){
 
-	ASSERT(spt != NULL);
   hash_destroy(&thread_current()->suppl_page_table, spte_destroy_func);
 
 }
 
 void
 spt_remove(struct suppl_pte * spte){
-
   ASSERT(spte != NULL);
   struct thread *cur = thread_current();
   struct hash_elem *e = hash_delete(&cur->suppl_page_table, &spte->helem);
@@ -143,12 +144,13 @@ load_page(struct suppl_pte * spte){
       ASSERT(false);
       break;
     case IN_SWAP:
-      swap_in(spte->swap_index, frame);   
+      swap_in(spte->swap_index, frame);
+      frame_find(spte->upage)->swap = false;
       break;
     case FROM_FILE:
       file_seek(spte->file, spte->offset);
       if((int)spte->read_bytes > file_read(spte->file, frame , spte->read_bytes)){
-        frame_remove(frame_find(spte->upage));
+        frame_remove(spte->upage);
         return false;
       }
       memset(frame+spte->read_bytes, 0, PGSIZE-spte->read_bytes);
@@ -160,11 +162,10 @@ load_page(struct suppl_pte * spte){
     default:
       ASSERT(false);
   }
-  
-  if(!pagedir_set_page(cur->pagedir, spte->upage, frame, writable)){
-    frame_remove(frame_find(spte->upage));
+  if(!pagedir_set_page(cur->pagedir, spte->upage, frame , writable)){
     return false;
   }
+
   spte->status = IN_MEMORY;
   spte->writable = writable; 
           

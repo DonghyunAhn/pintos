@@ -135,7 +135,6 @@ disk_init (void)
           snprintf (d->name, sizeof d->name, "%s:%d", c->name, dev_no);
           d->channel = c;
           d->dev_no = dev_no;
-
           d->is_ata = false;
           d->capacity = 0;
 
@@ -192,8 +191,7 @@ struct disk *
 disk_get (int chan_no, int dev_no) 
 {
   ASSERT (dev_no == 0 || dev_no == 1);
-
-  if (chan_no < (int) CHANNEL_CNT) 
+   if (chan_no < (int) CHANNEL_CNT) 
     {
       struct disk *d = &channels[chan_no].devices[dev_no];
       if (d->is_ata)

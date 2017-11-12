@@ -22,7 +22,7 @@ struct frame_table_entry{
 /* basic functions */
 void frame_init(void);
 void * frame_allocate(void * upage , enum palloc_flags flag);
-void frame_remove(struct frame_table_entry * fte);
+void frame_remove(void * upage);
 struct frame_table_entry * frame_find(void * upage);
 void frame_evict(void);
 

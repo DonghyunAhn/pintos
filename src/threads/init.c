@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <bitmap.h>
 #include "devices/kbd.h"
 #include "devices/input.h"
 #include "devices/serial.h"
@@ -28,6 +29,10 @@
 #include "userprog/tss.h"
 #else
 #include "tests/threads/tests.h"
+#endif
+#ifdef VM
+#include "vm/frame.h"
+#include "vm/swap.h"
 #endif
 #ifdef FILESYS
 #include "devices/disk.h"
@@ -80,9 +85,11 @@ main (void)
   thread_init ();
   console_init ();  
 
+#ifdef VM
+  frame_init();
+#endif
   /* Greet user. */
   printf ("Pintos booting with %'zu kB RAM...\n", ram_pages * PGSIZE / 1024);
-
   /* Initialize memory system. */
   palloc_init ();
   malloc_init ();
@@ -113,6 +120,12 @@ main (void)
   /* Initialize file system. */
   disk_init ();
   filesys_init (format_filesys);
+#endif
+
+#ifdef VM
+  
+  init_swap();
+
 #endif
 
   printf ("Boot complete.\n");

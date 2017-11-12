@@ -30,6 +30,8 @@ struct bitmap
     elem_type *bits;    /* Elements that represent bits. */
   };
 
+
+
 /* Returns the index of the element that contains the bit
    numbered BIT_IDX. */
 static inline size_t
@@ -102,7 +104,6 @@ bitmap_create_in_buf (size_t bit_cnt, void *block, size_t block_size UNUSED)
   struct bitmap *b = block;
   
   ASSERT (block_size >= bitmap_buf_size (bit_cnt));
-
   b->bit_cnt = bit_cnt;
   b->bits = (elem_type *) (b + 1);
   bitmap_set_all (b, false);
@@ -123,6 +124,7 @@ bitmap_buf_size (size_t bit_cnt)
 void
 bitmap_destroy (struct bitmap *b) 
 {
+
   if (b != NULL) 
     {
       free (b->bits);
@@ -223,7 +225,7 @@ bitmap_set_multiple (struct bitmap *b, size_t start, size_t cnt, bool value)
   ASSERT (b != NULL);
   ASSERT (start <= b->bit_cnt);
   ASSERT (start + cnt <= b->bit_cnt);
-
+  
   for (i = 0; i < cnt; i++)
     bitmap_set (b, start + i, value);
 }
@@ -298,7 +300,6 @@ bitmap_scan (const struct bitmap *b, size_t start, size_t cnt, bool value)
 {
   ASSERT (b != NULL);
   ASSERT (start <= b->bit_cnt);
-
   if (cnt <= b->bit_cnt) 
     {
       size_t last = b->bit_cnt - cnt;

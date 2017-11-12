@@ -30,7 +30,7 @@
 00000000000i[     ]   SB16 support: no
 00000000000i[     ]   USB support: no
 00000000000i[     ]   VGA extension support:  
-00000000000i[MEM0 ] allocated memory at 0x7f1304b7e010. after alignment, vector=0x7f1304b7f000
+00000000000i[MEM0 ] allocated memory at 0x7ffe201d9010. after alignment, vector=0x7ffe201da000
 00000000000i[MEM0 ] 4.00MB
 00000000000i[MEM0 ] rom at 0xf0000/65536 ('/usr/local/share/bochs/BIOS-bochs-latest')
 00000000000i[MEM0 ] rom at 0xc0000/32768 ('/usr/local/share/bochs/VGABIOS-lgpl-latest')
@@ -46,7 +46,7 @@
 00000000000i[     ] init_mem of 'extfpuirq' plugin device by virtual method
 00000000000i[     ] init_mem of 'speaker' plugin device by virtual method
 00000000000i[     ] init_dev of 'harddrv' plugin device by virtual method
-00000000000i[HD   ] HD on ata0-0: '/tmp/UFC6dLxgia.dsk' 'flat' mode 
+00000000000i[HD   ] HD on ata0-0: '/tmp/s8i5dCvrMM.dsk' 'flat' mode 
 00000000000i[HD   ] Using boot sequence disk, none, none
 00000000000i[HD   ] Floppy boot signature check is enabled
 00000000000i[     ] init_dev of 'keyboard' plugin device by virtual method
@@ -65,37 +65,8 @@
 00000000000i[     ] reset of 'parallel' plugin device by virtual method
 00000000000i[     ] reset of 'extfpuirq' plugin device by virtual method
 00000000000i[     ] reset of 'speaker' plugin device by virtual method
-00000003740i[BIOS ] $Revision: 1.160 $ $Date: 2006/01/25 17:51:49 $
-00000317563i[KBD  ] reset-disable command received
-00000425250i[VBIOS] VGABios $Id: vgabios.c,v 1.63 2005/12/26 19:50:26 vruppert Exp $
-00000428257i[VBIOS] VBE Bios $Id: vbe.c,v 1.48 2005/12/26 19:50:26 vruppert Exp $
-00000737822i[BIOS ] ata0-0: PCHS=1/16/63 translation=none LCHS=1/16/63
-00000786523e[HD   ] ata0: device set to 1 which does not exist
-00000786815e[HD   ] ata1: device set to 0 which does not exist
-00000787108e[HD   ] ata1: device set to 1 which does not exist
-00655280436p[     ] >>PANIC<< SIGNAL 2 caught
-00655280436i[SYS  ] Last time is 655
-00655280436i[NGUI ] bx_nogui_gui_c::exit() not implemented yet.
-00655280436i[CPU  ] protected mode
-00655280436i[CPU  ] CS.d_b = 32 bit
-00655280436i[CPU  ] SS.d_b = 32 bit
-00655280436i[CPU  ] | EAX=00000000  EBX=c0111c18  ECX=c01024c8  EDX=0000001f
-00655280436i[CPU  ] | ESP=c002fe40  EBP=c002fe68  ESI=c002f04c  EDI=c01024c8
-00655280436i[CPU  ] | IOPL=0 id vip vif ac vm rf nt of df if tf sf ZF af PF cf
-00655280436i[CPU  ] | SEG selector     base    limit G D
-00655280436i[CPU  ] | SEG sltr(index|ti|rpl)     base    limit G D
-00655280436i[CPU  ] |  CS:0008( 0001| 0|  0) 00000000 000fffff 1 1
-00655280436i[CPU  ] |  DS:0010( 0002| 0|  0) 00000000 000fffff 1 1
-00655280436i[CPU  ] |  SS:0010( 0002| 0|  0) 00000000 000fffff 1 1
-00655280436i[CPU  ] |  ES:0010( 0002| 0|  0) 00000000 000fffff 1 1
-00655280436i[CPU  ] |  FS:0010( 0002| 0|  0) 00000000 000fffff 1 1
-00655280436i[CPU  ] |  GS:0010( 0002| 0|  0) 00000000 000fffff 1 1
-00655280436i[CPU  ] | EIP=c010781b (c0107818)
-00655280436i[CPU  ] | CR0=0x80010015 CR1=0 CR2=0x00000000
-00655280436i[CPU  ] | CR3=0x00010000 CR4=0x00000000
-00655280436i[CPU  ] >> 89
-00655280436i[CPU  ] >> 1c
-00655280436i[CPU  ] >> 24
-00655280436i[CPU  ] >> : mov dword ptr ss:[esp], ebx
-00655280436i[     ] restoring default signal behavior
-00655280436i[CTRL ] quit_sim called with exit code 1
+00000000000p[     ] >>PANIC<< SIGNAL 2 caught
+00000000000i[SYS  ] Last time is 0
+00000000000i[NGUI ] bx_nogui_gui_c::exit() not implemented yet.
+00000000000i[     ] restoring default signal behavior
+00000000000i[CTRL ] quit_sim called with exit code 1

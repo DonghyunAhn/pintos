@@ -1,5 +1,6 @@
 #include "vm/swap.h"
 #include "vm/frame.h"
+#include "devices/disk.h"
 #include "vm/page.h"
 #include <bitmap.h>
 #include <round.h>
@@ -10,7 +11,7 @@
 #include "threads/vaddr.h"
 #include "userprog/pagedir.h"
 
-#define PAGE_SIZE_IN_SECTORS (DIV_ROUND_UP (PGSIZE, DISK_SECTOR_SIZE))
+int spp = PGSIZE/DISK_SECTOR_SIZE;
 //swap disk
 static struct disk * swap_disk;
 // Bitmap for manage swap pool
@@ -35,8 +36,8 @@ unlock_swap(void){
 void
 init_swap(){
   swap_disk = disk_get(1,1); //1:1
-  swap_pool = bitmap_create(disk_size(swap_disk)/ PAGE_SIZE_IN_SECTORS);
-  bitmap_set_all (swap_pool, false); // unassigned = false
+  swap_pool = bitmap_create(disk_size(swap_disk)/spp);
+  bitmap_set_all(swap_pool, false);
   lock_init(&swap_lock);
 }
 
@@ -48,17 +49,18 @@ swap_free(struct suppl_pte *spte) {
   unlock_swap();
 }
 
-//copy the swap space with index, to virtual address of page
+//copy the swap space with index, to physical address of page
 void
 swap_in (disk_sector_t sw_index, void * pg){
   ASSERT(pg>=PHYS_BASE); // check page is in kernel
-  ASSERT(sw_index < disk_size(swap_disk)/ PAGE_SIZE_IN_SECTORS);
+  ASSERT(sw_index < disk_size(swap_disk)/ spp);
   ASSERT (bitmap_test(swap_pool,sw_index) == true) // sw_index indicates unassigned swap disk
 
   size_t i;
-  for (i=0; i<PAGE_SIZE_IN_SECTORS;i++){
-    disk_read(swap_disk, sw_index*PAGE_SIZE_IN_SECTORS+i, pg+i*DISK_SECTOR_SIZE);
+  for (i=0; i<spp;i++){
+    disk_read(swap_disk, sw_index*spp+i, pg+i*DISK_SECTOR_SIZE);
   }
+
   lock_swap();
   //After swap_in, the sw_index should become unassigned index
   bitmap_set(swap_pool,sw_index, false);
@@ -83,13 +85,15 @@ swap_out(struct frame_table_entry * evicted){
   // now assgined swap index change to true
   sw_index = bitmap_scan_and_flip(swap_pool, 0,1, false);
   unlock_swap();
+  evicted->swap = true;
   if(sw_index==BITMAP_ERROR) return;
   struct suppl_pte * sup_page = spt_find(thread_current(),evicted->upage);
+  printf("evict : %p\n", evicted->upage);
   sup_page-> status = IN_SWAP;
   sup_page-> swap_index = sw_index;
   size_t i;
-  for (i=0;i<PAGE_SIZE_IN_SECTORS;i++){
-    disk_write(swap_disk, sw_index*PAGE_SIZE_IN_SECTORS+i, evicted->fpage+i*DISK_SECTOR_SIZE);
+  for (i=0;i<spp;i++){
+    disk_write(swap_disk, sw_index*spp+i, evicted->fpage+i*DISK_SECTOR_SIZE);
   }
   palloc_free_page(evicted->fpage);
 }

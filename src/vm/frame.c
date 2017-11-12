@@ -14,13 +14,10 @@
 static struct list frame_table; /* frame table. */
 static struct lock frame_lock; /* for synchronization of managing frame table */
 
-void init_frame(void);
-void * allocate_frame(void * vaddr, void * paddr);
-void free_frame(void *); 
-
+struct frame_table_entry *frame_find(void * upage);
 void
 frame_init(){
-
+  
 	list_init(&frame_table);
 	lock_init(&frame_lock);	
 
@@ -31,13 +28,11 @@ frame_init(){
 void *
 frame_allocate(void* upage , enum palloc_flags flag){
   
+  //printf("f : %p\n", upage);
   struct frame_table_entry * fte = malloc(sizeof(struct frame_table_entry));
-
-  lock_acquire(&frame_lock);
-  void * frame = palloc_get_page(PAL_USER | flag);
-  
+  void * frame = palloc_get_page(flag);
   /* if physical memory is full, evict some frame */
-  if(frame == NULL){
+  while(frame == NULL){
     frame_evict();
     frame = palloc_get_page(PAL_USER | flag);
   }
@@ -47,21 +42,23 @@ frame_allocate(void* upage , enum palloc_flags flag){
   fte->swap = -1;
   
   /* insert fte to the frame table */
+  lock_acquire(&frame_lock);
   list_push_back(&frame_table, &fte->elem);
   lock_release(&frame_lock);
   return frame;
 }
 
 void
-frame_remove(struct frame_table_entry * fte){
+frame_remove(void * upage){
   
+  struct frame_table_entry * fte = frame_find(upage);
   lock_acquire(&frame_lock);
 
   ASSERT(fte->fpage != NULL);
   if(!fte->swap)
     list_remove(&fte->elem);
-
   palloc_free_page(fte->fpage);
+  pagedir_clear_page(fte->holder->pagedir, fte->upage);
   free(fte);
   
   lock_release(&frame_lock);
@@ -71,13 +68,12 @@ frame_remove(struct frame_table_entry * fte){
 struct frame_table_entry *frame_find(void * upage){
 
   struct list_elem * e = list_front(&frame_table);
-  struct frame_table_entry * fte = NULL;
-  while(e != list_back(&frame_table)){
+  struct frame_table_entry * fte;
+  while(e  != list_back(&frame_table)){
   
     fte = list_entry(e, struct frame_table_entry, elem);
     if(fte->upage == upage)
       break;
-    
     e = list_next(e);
   }
 
@@ -88,7 +84,7 @@ struct frame_table_entry *frame_find(void * upage){
 /* choose the frame by second chance algorithm for eviction */
 void
 frame_evict(){
-
+  
   lock_acquire(&frame_lock);
   void * new_frame;
   struct list_elem * e = list_front(&frame_table);
@@ -104,10 +100,8 @@ frame_evict(){
     e = list_front(&frame_table);
     victim = list_entry(e, struct frame_table_entry , elem);
   }
-
   list_remove(&victim->elem);
   swap_out(victim);
   lock_release(&frame_lock);
-  
 }
 
