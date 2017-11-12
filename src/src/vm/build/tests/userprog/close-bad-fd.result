@@ -1,0 +1,21 @@
+FAIL
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (close-bad-fd) begin
+  (close-bad-fd) end
+  close-bad-fd: exit(0)
+Differences in `diff -u' format:
+- (close-bad-fd) begin
++ @@@0x8048000, 4@@@0x8049000, 4@@@0x804a000, 4@@@0x804b000, 4@@@0x804c000, 4(close-bad-fd) begin
+  (close-bad-fd) end
+  close-bad-fd: exit(0)
+Acceptable output:
+  (close-bad-fd) begin
+  close-bad-fd: exit(-1)
+Differences in `diff -u' format:
+- (close-bad-fd) begin
+- close-bad-fd: exit(-1)
++ @@@0x8048000, 4@@@0x8049000, 4@@@0x804a000, 4@@@0x804b000, 4@@@0x804c000, 4(close-bad-fd) begin
++ (close-bad-fd) end
++ close-bad-fd: exit(0)

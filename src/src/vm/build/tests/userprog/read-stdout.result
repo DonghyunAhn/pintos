@@ -1,0 +1,21 @@
+FAIL
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (read-stdout) begin
+  (read-stdout) end
+  read-stdout: exit(0)
+Differences in `diff -u' format:
+- (read-stdout) begin
++ @@@0x8048000, 4@@@0x8049000, 4@@@0x804a000, 4@@@0x804b000, 4@@@0x804c000, 4(read-stdout) begin
+  (read-stdout) end
+  read-stdout: exit(0)
+Acceptable output:
+  (read-stdout) begin
+  read-stdout: exit(-1)
+Differences in `diff -u' format:
+- (read-stdout) begin
+- read-stdout: exit(-1)
++ @@@0x8048000, 4@@@0x8049000, 4@@@0x804a000, 4@@@0x804b000, 4@@@0x804c000, 4(read-stdout) begin
++ (read-stdout) end
++ read-stdout: exit(0)
