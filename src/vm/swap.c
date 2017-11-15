@@ -20,7 +20,7 @@ static struct bitmap * swap_pool;
 static struct lock swap_lock;
 
 /* Acquries the swap_lock. */
-
+static struct lock mighty_lock;
 
 static void
 lock_swap(void){
@@ -33,12 +33,22 @@ unlock_swap(void){
   lock_release(&swap_lock);
 }
 
+static void
+lock_mighty(void){
+  lock_acquire(&mighty_lock);
+}
+
+static void
+unlock_mighty(void){
+  lock_release(&mighty_lock);
+}
 void
 init_swap(){
   swap_disk = disk_get(1,1); //1:1
   swap_pool = bitmap_create(disk_size(swap_disk)/spp);
   bitmap_set_all(swap_pool, false);
   lock_init(&swap_lock);
+  lock_init(&mighty_lock);
 }
 
 void
@@ -85,15 +95,17 @@ swap_out(struct frame_table_entry * evicted){
   // now assgined swap index change to true
   sw_index = bitmap_scan_and_flip(swap_pool, 0,1, false);
   unlock_swap();
-  evicted->swap = true;
   if(sw_index==BITMAP_ERROR) return;
-  struct suppl_pte * sup_page = spt_find(thread_current(),evicted->upage);
-  printf("evict : %p\n", evicted->upage);
+  struct suppl_pte * sup_page = spt_find(evicted->holder,evicted->upage);
+  //printf("evict : %s , %p\n", evicted->upage ,evicted->fpage);
   sup_page-> status = IN_SWAP;
   sup_page-> swap_index = sw_index;
+  sup_page-> fte = NULL;
+
   size_t i;
   for (i=0;i<spp;i++){
     disk_write(swap_disk, sw_index*spp+i, evicted->fpage+i*DISK_SECTOR_SIZE);
   }
+  evicted->swap = true;
   palloc_free_page(evicted->fpage);
 }

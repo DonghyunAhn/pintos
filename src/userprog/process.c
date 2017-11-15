@@ -83,9 +83,11 @@ start_process (void *f_name)
   if_.gs = if_.fs = if_.es = if_.ds = if_.ss = SEL_UDSEG;
   if_.cs = SEL_UCSEG;
   if_.eflags = FLAG_IF | FLAG_MBS;
-  success = load (file_name, &if_.eip, &if_.esp);
   
   sema_up(&cur->parent->loadsema);
+  success = load (file_name, &if_.eip, &if_.esp);
+  
+  
   if(cur->parent != NULL){
   
     lock_acquire(&cur->parent->loadlock);
@@ -536,14 +538,17 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
       spte->file = file;
       spte->writable = writable;
       spte->offset = ofs;
+      spte->fte = NULL;
       spte->read_bytes = page_read_bytes;
-      if(!(hash_insert(&curr->suppl_page_table, &spte->helem) == NULL))
+      if(!(hash_insert(&curr->suppl_page_table, &spte->helem) == NULL)){
+        free(spte);
         return false;
+      }
       //printf("s : %p\n", upage);
-      ofs += PGSIZE;
       read_bytes -= page_read_bytes;
       zero_bytes -= page_zero_bytes;
       upage += PGSIZE;
+      ofs += PGSIZE;
       
     } 
   return true; 
@@ -556,26 +561,49 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 static bool
 setup_stack (void **esp) 
 {
-  uint8_t *kpage;
   bool success = false;
   struct thread * curr = thread_current();
-  kpage = frame_allocate(PHYS_BASE - PGSIZE, PAL_USER | PAL_ZERO);
-  struct suppl_pte * src = malloc(sizeof(struct suppl_pte));
+  
+  struct suppl_pte * spte = malloc(sizeof(struct suppl_pte));
+  spte->upage = PHYS_BASE - PGSIZE;
+  spte->kpage = NULL;
+  spte->status = STACK_GROWTH;
+  spte->swap_index = -1;
+  spte->writable = true;
   *esp = PHYS_BASE;
-  src->upage = PHYS_BASE - PGSIZE;
-  src->kpage = kpage;
-  src->status = STACK_GROWTH; 
-  if(!(hash_insert(&curr->suppl_page_table, &src->helem) == NULL))
+  if(!(hash_insert(&curr->suppl_page_table, &spte->helem) == NULL)){
+    free(spte);
     return false;
-  if (kpage != NULL) 
+  }
+
+  return load_page(spte);
+ /* fte = frame_allocate(PHYS_BASE - PGSIZE, PAL_USER | PAL_ZERO);
+  if (fte->fpage != NULL) 
     {
-      success = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, kpage, true);
-      if (success)
+      success = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, fte->fpage, true);
+      if (success){
+        struct suppl_pte * spte = malloc(sizeof(struct suppl_pte));
+        spte->upage = PHYS_BASE - PGSIZE;
+        spte->kpage = fte->fpage;
+        spte->status = IN_MEMORY;
+        spte->swap_index = -1;
+        spte->writable = true;
+        spte->fte = fte; 
+        if(!(hash_insert(&curr->suppl_page_table, &spte->helem) == NULL)){
+          palloc_free_page(fte->fpage);
+          free(spte);
+          return false;
+        }
         *esp = PHYS_BASE;
-      else
+        fte->busy = false;
+        return true;
+      }
+      else{
         frame_remove(PHYS_BASE-PGSIZE);
-    }
-  return success;
+        palloc_free_page(fte->fpage);
+      }
+    } */
+  
 }
 
 /* Adds a mapping from user virtual address UPAGE to kernel

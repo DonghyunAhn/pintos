@@ -13,7 +13,7 @@ struct suppl_pte{
   
   /* IN_SWAP */
   uint32_t swap_index;      /* when page is swapped, it indicates swap index. initially -1. */
-
+  
   /* FROM_FILE */
   struct file * file;       
   bool writable;            /* false : read-only page */
@@ -21,6 +21,7 @@ struct suppl_pte{
   size_t read_bytes;        /* bytes to read from executables */
 
   struct hash_elem helem;    /* hash elem for hash mapping */
+  struct frame_table_entry * fte /*associated fte */
 };
 
 void spt_init(void);
@@ -30,5 +31,8 @@ void spt_remove(struct suppl_pte * spte);
 bool spt_stakcgrowth(void* upage);
 struct suppl_pte * spt_find(struct thread *t ,void *upage);
 bool load_page(struct suppl_pte * spte);
+
+void page_set_busy(struct thread *t, void *upage);
+void page_set_unbusy(struct thread *t, void *upage);
 
 #endif /* vm/page.h */

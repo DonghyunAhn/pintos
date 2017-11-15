@@ -17,13 +17,17 @@ struct frame_table_entry{
 
   struct list_elem elem;    /* elem for hash table */
 	bool swap;						/* boolean for swap */
+
+  bool busy;           /* setup stack */
 };
 
 /* basic functions */
 void frame_init(void);
-void * frame_allocate(void * upage , enum palloc_flags flag);
-void frame_remove(void * upage);
+struct frame_table_entry * frame_allocate(void * upage , enum palloc_flags flag);
+void frame_remove(struct frame_table_entry * fte);
 struct frame_table_entry * frame_find(void * upage);
 void frame_evict(void);
 
+void frame_set_busy(struct frame_table_entry *frame);
+void frame_set_unbusy(struct frame_table_entry *frame);
 #endif /* vm/frame.h */

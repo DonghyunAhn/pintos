@@ -153,15 +153,15 @@ page_fault (struct intr_frame *f)
   not_present = (f->error_code & PF_P) == 0;
   write = (f->error_code & PF_W) != 0;
   user = (f->error_code & PF_U) != 0;
-
   /* To implement virtual memory, delete the rest of the function
      body, and replace it with code that brings in the page to
      which fault_addr refers. */
 #if VM
   struct thread * cur = thread_current();
   void * stack;
-  if(fault_addr == NULL || (fault_addr >= PHYS_BASE && user) || (fault_addr <= USER_VADDR_LBD && user))
+  if(fault_addr == NULL || (fault_addr >= PHYS_BASE && user) || (fault_addr <= USER_VADDR_LBD && user)){
     goto INVALID_ACCESS;
+  }
   fault_pg = pg_round_down(fault_addr);   /* start addr of page where page_fault occurs */
   /* read-only memory */
   if(!not_present){
@@ -174,10 +174,14 @@ page_fault (struct intr_frame *f)
     stack = cur->esp; /* page fault from syscall */
   }
   //printf("%p,%p,%d,%d\n", fault_addr, stack, f->esp - fault_addr,write);
-  if(user && f->esp - fault_addr >= PGSIZE)
+  if(user && f->esp - fault_addr >= PGSIZE){
+   
     goto INVALID_ACCESS;
+
+  }
   //lock_supplement_page_table(cur);
-  //spte 
+  //spte
+  
   struct suppl_pte * spte = spt_find(thread_current(),fault_pg);
   //if(spte->writable == false && write)
     //exit(-1);
@@ -186,16 +190,16 @@ page_fault (struct intr_frame *f)
   on_frame = (stack <= fault_addr || fault_addr == f->esp - 4 || fault_addr == f->esp -32);
   /* stack is not too large ? */
   valid_size = (PHYS_BASE - fault_addr <= MAX_STACK && fault_addr <PHYS_BASE);
-  if(!valid_size)
-    goto INVALID_ACCESS;
-
+  if(!valid_size){
+    goto INVALID_ACCESS;}
   if(spte==NULL){
     if(!(on_frame && valid_size)) goto INVALID_ACCESS;
     /* grow stack */
     spte = spt_stackgrowth(fault_pg);  
   }    
-  if(write && !spte->writable)
+  if(write && !spte->writable){
     goto INVALID_ACCESS;
+  }
   if (load_page(spte)) return; 
 
   goto INVALID_ACCESS;

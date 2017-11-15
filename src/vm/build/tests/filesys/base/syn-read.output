@@ -1,0 +1,50 @@
+Copying tests/filesys/base/syn-read into /tmp/6Qkq7fRybG.dsk...
+Copying tests/filesys/base/child-syn-read into /tmp/6Qkq7fRybG.dsk...
+Writing command line to /tmp/rnB9c68xUq.dsk...
+warning: can't find squish-pty, so terminal input will fail
+bochs -q
+Kernel command line: -q -f put syn-read put child-syn-read run syn-read
+Pintos booting with 4,096 kB RAM...
+373 pages available in kernel pool.
+373 pages available in user pool.
+Calibrating timer...  204,600 loops/s.
+hd0:0: detected 1,008 sector (504 kB) disk, model "Generic 1234", serial "BXHD00011"
+hd0:1: detected 4,032 sector (1 MB) disk, model "Generic 1234", serial "BXHD00012"
+hd1:0: detected 1,008 sector (504 kB) disk, model "Generic 1234", serial "BXHD00021"
+hd1:1: detected 8,064 sector (3 MB) disk, model "Generic 1234", serial "BXHD00022"
+Formatting file system...done.
+Boot complete.
+Putting 'syn-read' into the file system...
+Putting 'child-syn-read' into the file system...
+Executing 'syn-read':
+(syn-read) begin
+(syn-read) create "data"
+(syn-read) open "data"
+(syn-read) write "data"
+(syn-read) close "data"
+(syn-read) exec child 1 of 10: "child-syn-read 0"
+(syn-read) exec child 2 of 10: "child-syn-read 1"
+(syn-read) exec child 3 of 10: "child-syn-read 2"
+(syn-read) exec child 4 of 10: "child-syn-read 3"
+(syn-read) exec child 5 of 10: "child-syn-read 4"
+(syn-read) exec child 6 of 10: "child-syn-read 5"
+(syn-read) exec child 7 of 10: "child-syn-read 6"
+(syn-read) exec child 8 of 10: "child-syn-read 7"
+(syn-read) exec child 9 of 10: "child-syn-read 8"
+(syn-read) exec child 10 of 10: "child-syn-read 9"
+(child-syn-read) open "data": FAILED
+child-syn-read: exit(1)
+(syn-read) wait for child 1 of 10 returned -1 (expected 0)
+(syn-read) wait for child 1 of 10 returned -1 (expected 0): FAILED
+syn-read: exit(1)
+Execution of 'syn-read' complete.
+Timer: 1153 ticks
+Thread: 30 idle ticks, 390 kernel ticks, 756 user ticks
+hd0:0: 0 reads, 0 writes
+hd0:1: 666 reads, 448 writes
+hd1:0: 215 reads, 0 writes
+hd1:1: 0 reads, 0 writes
+Console: 1746 characters output
+Keyboard: 0 keys pressed
+Exception: 45 page faults
+Powering off...

@@ -9,6 +9,8 @@
 
 static void lock_swap();
 static void unlock_swap();
+static void lock_mighty();
+static void lock_mighty();
 
 void init_swap ();
 void swap_free(struct suppl_pte * spte);

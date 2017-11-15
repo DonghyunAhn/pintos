@@ -40,7 +40,8 @@ void close (int fd);
 
 static int get_user (const uint8_t *uaddr);
 static bool put_user (uint8_t *udst, uint8_t byte);
-
+void busy_true(void * buffer, size_t size);
+void busy_false(void * buffer, size_t size);
 struct semaphore filesema;
 
 /* Helper function */
@@ -263,8 +264,6 @@ filesize (int fd)
 int 
 read (int fd, const void *buffer, unsigned size)
 {
-  if(size == 0)
-    return 0;
   if(buffer == NULL || !is_user_vaddr(buffer) || buffer >= PHYS_BASE)
     exit(-1);
   if(get_user(buffer + size -1) == -1||get_user(buffer) == -1){
@@ -273,19 +272,10 @@ read (int fd, const void *buffer, unsigned size)
   
   struct thread * cur = thread_current();
   void * buf_pg = pg_round_down(buffer);
-  //printf("\nbuf address :%p");
   struct suppl_pte *spte = spt_find(cur, buf_pg);
-  int readnormal;
-  readnormal = 0;
-  if(fd_to_file(cur, fd) == NULL){
-    return -1;
-  }
   if(spte != NULL && !spte->writable){
-    readnormal = file_read(fd_to_file(cur,fd)->file, (void *)buffer, (off_t)size);
-    if(readnormal>0)
-      return readnormal;
     exit(-1);
-}
+  }
   int i;
   uint8_t c;
 
@@ -303,12 +293,19 @@ read (int fd, const void *buffer, unsigned size)
   }
   else
   {
-    
-    if(fd_to_file(cur, fd) == NULL){
+    struct file_descriptor * fdc = fd_to_file(cur, fd); 
+    if(fdc == NULL){
       return -1;
     }
-      return file_read(fd_to_file(cur,fd)->file, (void *)buffer, (off_t)size); 
-  
+    
+    if(fdc && fdc->file){
+      busy_true(buffer, size);  
+      int ret = file_read(fd_to_file(cur,fd)->file, (void *)buffer, (off_t)size); 
+      busy_false(buffer, size);
+      return ret;
+    }
+    else
+      return -1;
   }
 
 }
@@ -325,17 +322,21 @@ write (int fd, const void *buffer, unsigned size)
 
   else{
     struct thread *cur = thread_current();
-
-    if(fd_to_file(cur,fd) == NULL)
+    struct file_descriptor * fdc = fd_to_file(cur, fd);
+    if(fdc == NULL)
       return 0;
    
     //print_dw(fd_to_file(cur,fd)->file);
-    return file_write(fd_to_file(cur,fd)->file, buffer, size);
-
-  
+    if(fdc && fdc->file){
+    busy_true(buffer, size);
+    int ret = file_write(fd_to_file(cur,fd)->file, buffer, size);
+    busy_false(buffer, size);
+    
+    return ret;
+    }
+    else
+      return 0;
   }
-
-
 
 }
 void 
@@ -401,4 +402,29 @@ put_user (uint8_t *udst, uint8_t byte) {
     asm ("movl $1f, %0; movb %b2, %1; 1:"
         : "=&a" (error_code), "=m" (*udst) : "q" (byte));
     return error_code != -1;
+}
+
+void busy_true(void * buffer, size_t size){
+
+  void * upage;
+  for(upage = pg_round_down(buffer); upage < buffer + size; upage += PGSIZE){
+    
+    struct suppl_pte * spte = spt_find(thread_current(),upage);
+    load_page(spte);
+    page_set_busy(thread_current(), upage);
+    
+  }
+
+}
+
+void busy_false(void * buffer, size_t size){
+
+  void * upage;
+
+  for(upage = pg_round_down(buffer);upage < buffer + size; upage += PGSIZE){
+    
+    page_set_unbusy(thread_current(), upage);
+  }
+
+
 }

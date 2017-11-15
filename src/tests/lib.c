@@ -125,9 +125,11 @@ check_file_handle (int fd,
     {
       char block[512];
       size_t block_size, ret_val;
+
       block_size = size - ofs;
       if (block_size > sizeof block)
         block_size = sizeof block;
+
       ret_val = read (fd, block, block_size);
       if (ret_val != block_size)
         fail ("read of %zu bytes at offset %zu in \"%s\" returned %zu",

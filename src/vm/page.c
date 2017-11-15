@@ -32,15 +32,20 @@ static void spte_destroy_func(struct hash_elem *elem, void *aux UNUSED){
   struct suppl_pte *spte = hash_entry(elem, struct suppl_pte, helem);
 
   // remove associated frame
-  if (spte->kpage != NULL) {
-    frame_remove(spte->upage);
-  }
-  else if(spte->status == IN_SWAP) {
+
+  if(spte->status == IN_SWAP) {
     swap_free (spte);
+  }
+  else if (spte->kpage != NULL) {
+    
+    ASSERT(spte->status == IN_MEMORY);
+//    printf("%p\n", frame_find(spte->upage)==NULL);
+    frame_remove(spte->fte);
   }
   
   // free SPTE.
   free (spte);
+
 }
 
 
@@ -128,46 +133,72 @@ spt_find(struct thread * t, void *upage){
 bool
 load_page(struct suppl_pte * spte){
 
-  ASSERT(spte != NULL);
+  if(spte == NULL) return false;
   bool writable = true;
+  
   struct thread * cur = thread_current();
   if(spte->status == IN_MEMORY)
     return true;
 
-  void * frame = frame_allocate(spte->upage, PAL_USER);
+  struct frame_table_entry * frame = frame_allocate(spte->upage, PAL_USER);
+  //printf("%p %d\n", frame, frame->swap);
   if(frame == NULL)
     return false;
-
   switch(spte->status)
   {
     case IN_MEMORY:
       ASSERT(false);
       break;
     case IN_SWAP:
-      swap_in(spte->swap_index, frame);
-      frame_find(spte->upage)->swap = false;
+      swap_in(spte->swap_index, frame->fpage);
+      spte->fte = frame;
+      spte->fte->swap = false;
       break;
     case FROM_FILE:
       file_seek(spte->file, spte->offset);
-      if((int)spte->read_bytes > file_read(spte->file, frame , spte->read_bytes)){
+      int readnum = file_read(spte->file, frame->fpage, spte->read_bytes);
+      if((int)spte->read_bytes != readnum){
         frame_remove(spte->upage);
         return false;
       }
-      memset(frame+spte->read_bytes, 0, PGSIZE-spte->read_bytes);
+      //printf("%p, %d\n", frame->fpage, readnum);
+      memset(frame->fpage+readnum, 0, PGSIZE-readnum);
       writable = spte->writable;
       break;
     case STACK_GROWTH:
-      memset(frame, 0, PGSIZE);
+      memset(frame->fpage, 0, PGSIZE);
       break;
     default:
       ASSERT(false);
   }
-  if(!pagedir_set_page(cur->pagedir, spte->upage, frame , writable)){
+  if(!(pagedir_set_page(cur->pagedir, spte->upage, frame->fpage , writable))){
+    frame_remove(spte->upage);
     return false;
   }
-
+  spte->fte = frame;
+  spte->kpage = frame->fpage;
   spte->status = IN_MEMORY;
   spte->writable = writable; 
-          
+  frame_set_unbusy(frame);
   return true; 
 }
+
+void page_set_busy(struct thread * t,void * upage){
+
+  struct suppl_pte * spte = spt_find(t, upage);
+  if(spte == NULL)
+    return;
+  ASSERT(spte->status == IN_MEMORY); 
+  frame_set_busy(spte->fte);
+
+} 
+
+void page_set_unbusy(struct thread * t,void * upage){
+
+  struct suppl_pte * spte = spt_find(t, upage);
+  ASSERT(spte != NULL)
+    
+  if(spte->status == IN_MEMORY)
+    frame_set_unbusy(spte->fte);
+
+} 
