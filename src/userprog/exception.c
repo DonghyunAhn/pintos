@@ -174,11 +174,11 @@ page_fault (struct intr_frame *f)
     stack = cur->esp; /* page fault from syscall */
   }
   //printf("%p,%p,%d,%d\n", fault_addr, stack, f->esp - fault_addr,write);
-  if(user && f->esp - fault_addr >= PGSIZE){
-   
+ /* if(user && f->esp - fault_addr >= PGSIZE){
+    printf("a\n"); 
     goto INVALID_ACCESS;
 
-  }
+  }*/
   //lock_supplement_page_table(cur);
   //spte
   
@@ -190,19 +190,23 @@ page_fault (struct intr_frame *f)
   on_frame = (stack <= fault_addr || fault_addr == f->esp - 4 || fault_addr == f->esp -32);
   /* stack is not too large ? */
   valid_size = (PHYS_BASE - fault_addr <= MAX_STACK && fault_addr <PHYS_BASE);
-  if(!valid_size){
-    goto INVALID_ACCESS;}
+  /* if(!valid_size){
+    printf("e\n");
+    goto INVALID_ACCESS;} */
   if(spte==NULL){
-    if(!(on_frame && valid_size)) goto INVALID_ACCESS;
+    if(!(on_frame && valid_size)){ 
+      goto INVALID_ACCESS;
+    }
     /* grow stack */
     spte = spt_stackgrowth(fault_pg);  
   }    
   if(write && !spte->writable){
     goto INVALID_ACCESS;
   }
-  if (load_page(spte)) return; 
-
-  goto INVALID_ACCESS;
+  if (!load_page(spte)){
+    goto INVALID_ACCESS;
+  }
+  return;
 
   /* if page fault occurs due to access kernel memory or attempt to write read-ony file*/
 INVALID_ACCESS :

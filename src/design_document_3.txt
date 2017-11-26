@@ -8,10 +8,11 @@
 
 >> Fill in the names and email addresses of your group members.
 
+PJ3-2
 AhnDonghyun segaukwa@kaist.ac.kr
 HamDonghoon hdh8277@kaist.ac.kr
 
-Use 3 tokens
+Use 0 tokens
 
 ---- PRELIMINARIES ----
 
@@ -250,14 +251,43 @@ And other synchronization problem can be handled by one boolean parameter, busy.
 >> `struct' member, global or static variable, `typedef', or
 >> enumeration.  Identify the purpose of each in 25 words or less.
 
+struct mmap_descriptor
+{
+  mapid_t id; 			// id for memory mapped file
+  struct list_elem elem;	// list elem for mmap_list in thread
+  struct file* file;		// file info of memory mapped file
+
+  void *addr;			// user address where file is mapped
+  size_t size;			// file size
+};
+
+struct thread{
+
+  struct list mmap_list;	// list for mmap_descriptor
+
+}
+
+
 ---- ALGORITHMS ----
 
 >> C2: Describe how memory mapped files integrate into your virtual
 >> memory subsystem.  Explain how the page fault and eviction
 >> processes differ between swap pages and other pages.
 
+When mmap is called, find file from fd and open it.
+According to file size, allocate frame and make supplementary page table entry for it.
+Then make mmap_descriptor, which contains memory mapped file info and insert it to the mmap_list
+When memory mapped file is unmapped, check dirty bits.
+If it is dirty, it means something write on file.
+So, write back to original file to reflect change.
+
+
 >> C3: Explain how you determine whether a new file mapping overlaps
 >> any existing segment.
+
+We determine whether a new file mapping overlaps an existing segment
+by checking if there is an existing mapping in page directory.
+
 
 ---- RATIONALE ----
 
@@ -267,6 +297,11 @@ And other synchronization problem can be handled by one boolean parameter, busy.
 >> that much of their implementation can be shared.  Explain why your
 >> implementation either does or does not share much of the code for
 >> the two situations.
+we implement it separately, since we are not cleaver as well as you thnk. 
+Moreover, we were forced to improve the synchronization problems. 
+The suggestion seems  to demand more locks to synchronize, 
+so we were not gonna merge those structures.
+
 
 			   SURVEY QUESTIONS
 			   ================
@@ -279,6 +314,7 @@ the quarter.
 
 >> In your opinion, was this assignment, or any one of the three problems
 >> in it, too easy or too hard?  Did it take too long or too little time?
+It was the most hardest project compare to project 1,2.
 
 >> Did you find that working on a particular part of the assignment gave
 >> you greater insight into some aspect of OS design?

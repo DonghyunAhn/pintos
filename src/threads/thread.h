@@ -126,7 +126,7 @@ struct thread
     struct condition loadcond;        /* condvar for siganl load success */
     struct file * exec_file;
 #ifdef VM
-
+    struct list mmap_list;
     struct hash suppl_page_table;     /* supplementary page table */
     struct lock spt_lock;             /* supplementary page table lock */
 

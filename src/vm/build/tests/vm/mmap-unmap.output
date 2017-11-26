@@ -1,6 +1,6 @@
-Copying tests/vm/mmap-unmap into /tmp/mrj5TFxcdQ.dsk...
-Copying ../../tests/vm/sample.txt into /tmp/mrj5TFxcdQ.dsk...
-Writing command line to /tmp/zFpiCWiGhi.dsk...
+Copying tests/vm/mmap-unmap into /tmp/sg4J8XCa0N.dsk...
+Copying ../../tests/vm/sample.txt into /tmp/sg4J8XCa0N.dsk...
+Writing command line to /tmp/WsnURPrmDo.dsk...
 warning: can't find squish-pty, so terminal input will fail
 bochs -q
 Kernel command line: -q -f put mmap-unmap put sample.txt run mmap-unmap
@@ -24,16 +24,16 @@ Page fault at 0x10000000: not present error reading page in user context.
 mmap-unmap: dying due to interrupt 0x0e (#PF Page-Fault Exception).
 Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x8048107
  cr2=10000000 error=00000004
- eax=0000001f ebx=00000003 ecx=0000001f edx=0804bf20
+ eax=00000003 ebx=00000003 ecx=0804bec0 edx=10000000
  esi=00000000 edi=00000000 esp=bfffff80 ebp=bfffff98
  cs=001b ds=0023 es=0023 ss=0023
 mmap-unmap: exit(-1)
 Execution of 'mmap-unmap' complete.
-Timer: 407 ticks
-Thread: 30 idle ticks, 278 kernel ticks, 102 user ticks
+Timer: 423 ticks
+Thread: 30 idle ticks, 292 kernel ticks, 104 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 98 reads, 216 writes
-hd1:0: 103 reads, 0 writes
+hd0:1: 98 reads, 228 writes
+hd1:0: 109 reads, 0 writes
 hd1:1: 0 reads, 0 writes
 Console: 1398 characters output
 Keyboard: 0 keys pressed

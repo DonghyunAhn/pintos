@@ -1,6 +1,6 @@
-Copying tests/filesys/base/syn-read into /tmp/6Qkq7fRybG.dsk...
-Copying tests/filesys/base/child-syn-read into /tmp/6Qkq7fRybG.dsk...
-Writing command line to /tmp/rnB9c68xUq.dsk...
+Copying tests/filesys/base/syn-read into /tmp/AxE6RemwUm.dsk...
+Copying tests/filesys/base/child-syn-read into /tmp/AxE6RemwUm.dsk...
+Writing command line to /tmp/NDgg7hvQE8.dsk...
 warning: can't find squish-pty, so terminal input will fail
 bochs -q
 Kernel command line: -q -f put syn-read put child-syn-read run syn-read
@@ -32,19 +32,18 @@ Executing 'syn-read':
 (syn-read) exec child 8 of 10: "child-syn-read 7"
 (syn-read) exec child 9 of 10: "child-syn-read 8"
 (syn-read) exec child 10 of 10: "child-syn-read 9"
-(child-syn-read) open "data": FAILED
-child-syn-read: exit(1)
+load: child-syn-read: open failed
 (syn-read) wait for child 1 of 10 returned -1 (expected 0)
 (syn-read) wait for child 1 of 10 returned -1 (expected 0): FAILED
 syn-read: exit(1)
 Execution of 'syn-read' complete.
-Timer: 1153 ticks
-Thread: 30 idle ticks, 390 kernel ticks, 756 user ticks
+Timer: 1144 ticks
+Thread: 30 idle ticks, 394 kernel ticks, 752 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 666 reads, 448 writes
-hd1:0: 215 reads, 0 writes
+hd0:1: 608 reads, 476 writes
+hd1:0: 229 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1746 characters output
+Console: 1719 characters output
 Keyboard: 0 keys pressed
-Exception: 45 page faults
+Exception: 41 page faults
 Powering off...

@@ -46,11 +46,12 @@ process_execute (const char *file_name)
   
   strlcpy (fn_copy, file_name, PGSIZE);
   /* Create a new thread to execute FILE_NAME. */
+  //sema_down(&cur->loadsema);
   tid = thread_create (file_name, PRI_DEFAULT, start_process, fn_copy);
   
   if (tid == TID_ERROR)
     palloc_free_page (fn_copy); 
-
+  
   return tid;
 }
 
@@ -86,7 +87,7 @@ start_process (void *f_name)
   
   sema_up(&cur->parent->loadsema);
   success = load (file_name, &if_.eip, &if_.esp);
-  
+  //sema_up(&cur->parent->loadsema);
   
   if(cur->parent != NULL){
   
@@ -156,7 +157,6 @@ process_wait (tid_t child_tid)
   sema_down(&cur->waitsema);
   cur->wait_child = false;
   ch->dead = 1;
-
   return ch->exit_status;
   
   
@@ -168,10 +168,17 @@ process_exit (void)
 {
   struct thread *curr = thread_current ();
   struct file_descriptor *fds;
- 
+  //printf("%d\n", curr->tid);
   uint32_t *pd;
   /* Destroy the current process's page directory and switch back
      to the kernel-only page directory. */
+
+   while(!list_empty(&curr->mmap_list)){
+    struct list_elem *e = list_back(&curr->mmap_list);
+    struct mmap_descriptor * mmap_d = list_entry(e, struct mmap_descriptor, elem);
+    munmap(mmap_d->id);
+  }
+
 #ifdef VM
 
   spt_destroy(&curr->suppl_page_table);

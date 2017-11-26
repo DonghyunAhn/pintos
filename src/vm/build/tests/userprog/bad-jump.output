@@ -1,5 +1,5 @@
-Copying tests/userprog/bad-jump into /tmp/a676uDg8bF.dsk...
-Writing command line to /tmp/ordjjN6NqG.dsk...
+Copying tests/userprog/bad-jump into /tmp/fpeDoDXEmE.dsk...
+Writing command line to /tmp/048GhMCwnL.dsk...
 warning: can't find squish-pty, so terminal input will fail
 bochs -q
 Kernel command line: -q -f put bad-jump run bad-jump
@@ -25,13 +25,13 @@ Interrupt 0x0e (#PF Page-Fault Exception) at eip=0
  cs=001b ds=0023 es=0023 ss=0023
 bad-jump: exit(-1)
 Execution of 'bad-jump' complete.
-Timer: 355 ticks
-Thread: 30 idle ticks, 242 kernel ticks, 86 user ticks
+Timer: 368 ticks
+Thread: 30 idle ticks, 252 kernel ticks, 89 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 59 reads, 204 writes
-hd1:0: 98 reads, 0 writes
+hd0:1: 59 reads, 216 writes
+hd1:0: 104 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1241 characters output
+Console: 1242 characters output
 Keyboard: 0 keys pressed
 Exception: 6 page faults
 Powering off...

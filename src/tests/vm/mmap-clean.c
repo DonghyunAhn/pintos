@@ -39,6 +39,7 @@ test_main (void)
          "read \"sample.txt\"");
 
   /* Verify that file overwrite worked. */
+
   if (memcmp (buffer, overwrite, strlen (overwrite))
       || memcmp (buffer + strlen (overwrite), sample + strlen (overwrite),
                  strlen (sample) - strlen (overwrite))) 

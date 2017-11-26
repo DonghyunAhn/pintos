@@ -1,3 +1,5 @@
+Prototype mismatch: sub main::SIGVTALRM () vs none at /home/cs330/pintos/src/utils//pintos line 874.
+Constant subroutine SIGVTALRM redefined at /home/cs330/pintos/src/utils//pintos line 866.
 ========================================================================
                        Bochs x86 Emulator 2.2.6
               Build from CVS snapshot on January 29, 2006

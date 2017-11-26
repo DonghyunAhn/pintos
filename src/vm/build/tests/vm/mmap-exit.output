@@ -1,6 +1,6 @@
-Copying tests/vm/mmap-exit into /tmp/hwEwuDDEWD.dsk...
-Copying tests/vm/child-mm-wrt into /tmp/hwEwuDDEWD.dsk...
-Writing command line to /tmp/d1bEipPmOu.dsk...
+Copying tests/vm/mmap-exit into /tmp/LmWA9brRu8.dsk...
+Copying tests/vm/child-mm-wrt into /tmp/LmWA9brRu8.dsk...
+Writing command line to /tmp/A7U59c5rzU.dsk...
 warning: can't find squish-pty, so terminal input will fail
 bochs -q
 Kernel command line: -q -f put mmap-exit put child-mm-wrt run mmap-exit
@@ -24,20 +24,20 @@ Executing 'mmap-exit':
 (child-mm-wrt) mmap "sample.txt"
 Page fault at 0x10000000: not present error writing page in user context.
 child-mm-wrt: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x8049c34
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x8049bcc
  cr2=10000000 error=00000006
- eax=0000003d ebx=10000000 ecx=0000031b edx=00000000
- esi=0804bc20 edi=00000000 esp=bfffff50 ebp=bfffff78
+ eax=0000003d ebx=0000031b ecx=0804bba0 edx=00000000
+ esi=10000000 edi=10000000 esp=bfffff50 ebp=bfffff78
  cs=001b ds=0023 es=0023 ss=0023
 child-mm-wrt: exit(-1)
 (mmap-exit) wait for child (should return 0): FAILED
 mmap-exit: exit(1)
 Execution of 'mmap-exit' complete.
-Timer: 567 ticks
-Thread: 30 idle ticks, 361 kernel ticks, 179 user ticks
+Timer: 595 ticks
+Thread: 30 idle ticks, 382 kernel ticks, 186 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 161 reads, 416 writes
-hd1:0: 200 reads, 0 writes
+hd0:1: 160 reads, 440 writes
+hd1:0: 212 reads, 0 writes
 hd1:1: 0 reads, 0 writes
 Console: 1533 characters output
 Keyboard: 0 keys pressed

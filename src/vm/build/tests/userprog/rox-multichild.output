@@ -1,6 +1,6 @@
-Copying tests/userprog/rox-multichild into /tmp/qCQe2kjvdP.dsk...
-Copying tests/userprog/child-rox into /tmp/qCQe2kjvdP.dsk...
-Writing command line to /tmp/TXclNIDns2.dsk...
+Copying tests/userprog/rox-multichild into /tmp/jIuHfeBDNY.dsk...
+Copying tests/userprog/child-rox into /tmp/jIuHfeBDNY.dsk...
+Writing command line to /tmp/kN3FyqpDiT.dsk...
 warning: can't find squish-pty, so terminal input will fail
 bochs -q
 Kernel command line: -q -f put rox-multichild put child-rox run rox-multichild
@@ -55,11 +55,11 @@ child-rox: exit(12)
 (rox-multichild) end
 rox-multichild: exit(0)
 Execution of 'rox-multichild' complete.
-Timer: 863 ticks
-Thread: 30 idle ticks, 442 kernel ticks, 394 user ticks
+Timer: 916 ticks
+Thread: 30 idle ticks, 476 kernel ticks, 412 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 284 reads, 430 writes
-hd1:0: 209 reads, 0 writes
+hd0:1: 284 reads, 456 writes
+hd1:0: 222 reads, 0 writes
 hd1:1: 0 reads, 0 writes
 Console: 1952 characters output
 Keyboard: 0 keys pressed

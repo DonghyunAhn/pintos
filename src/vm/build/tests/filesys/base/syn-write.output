@@ -1,6 +1,6 @@
-Copying tests/filesys/base/syn-write into /tmp/RvLT194m8u.dsk...
-Copying tests/filesys/base/child-syn-wrt into /tmp/RvLT194m8u.dsk...
-Writing command line to /tmp/h172unNjJz.dsk...
+Copying tests/filesys/base/syn-write into /tmp/MthudzS0TH.dsk...
+Copying tests/filesys/base/child-syn-wrt into /tmp/MthudzS0TH.dsk...
+Writing command line to /tmp/lqgmRfPYe8.dsk...
 warning: can't find squish-pty, so terminal input will fail
 bochs -q
 Kernel command line: -q -f put syn-write put child-syn-wrt run syn-write
@@ -27,37 +27,35 @@ Executing 'syn-write':
 child-syn-wrt: exit(0)
 (syn-write) exec child 6 of 10: "child-syn-wrt 5"
 (syn-write) exec child 7 of 10: "child-syn-wrt 6"
+child-syn-wrt: exit(1)
 (syn-write) exec child 8 of 10: "child-syn-wrt 7"
 (syn-write) exec child 9 of 10: "child-syn-wrt 8"
-((null)) open "stuff": FAILED
-child-syn-wrt: exit(1)
-(syn-write) exec child 10 of 10: "child-syn-wrt 9"
-child-syn-wrt: exit(3)
-load: child-syn-wrt: open failed
-child-syn-wrt: exit(4)
 child-syn-wrt: exit(2)
+(syn-write) exec child 10 of 10: "child-syn-wrt 9"
 (syn-write) wait for child 1 of 10 returned 0 (expected 0)
 (syn-write) wait for child 2 of 10 returned 1 (expected 1)
 (syn-write) wait for child 3 of 10 returned 2 (expected 2)
-(syn-write) wait for child 4 of 10 returned 3 (expected 3)
-(syn-write) wait for child 5 of 10 returned 4 (expected 4)
-(syn-write) wait for child 6 of 10 returned 5 (expected 5)
-child-syn-wrt: exit(7)
-((null)) write "stuff": FAILED
+child-syn-wrt: exit(4)
+child-syn-wrt: exit(6)
+load: child-syn-wrt: open failed
+child-syn-wrt: exit(3)
+((null)) open "stuff": FAILED
 child-syn-wrt: exit(1)
-child-syn-wrt: exit(5)
-child-syn-wrt: exit(9)
-(syn-write) wait for child 7 of 10 returned -1 (expected 6)
-(syn-write) wait for child 7 of 10 returned -1 (expected 6): FAILED
+(syn-write) wait for child 4 of 10 returned 3 (expected 3)
+child-syn-wrt: exit(7)
+(syn-write) wait for child 5 of 10 returned 4 (expected 4)
+child-syn-wrt: exit(8)
+(syn-write) wait for child 6 of 10 returned 1 (expected 5)
+(syn-write) wait for child 6 of 10 returned 1 (expected 5): FAILED
 syn-write: exit(1)
 Execution of 'syn-write' complete.
-Timer: 1314 ticks
-Thread: 30 idle ticks, 548 kernel ticks, 739 user ticks
+Timer: 1384 ticks
+Thread: 30 idle ticks, 604 kernel ticks, 753 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 423 reads, 463 writes
-hd1:0: 216 reads, 0 writes
+hd0:1: 427 reads, 488 writes
+hd1:0: 228 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 2278 characters output
+Console: 2186 characters output
 Keyboard: 0 keys pressed
 Exception: 51 page faults
 Powering off...

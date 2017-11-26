@@ -1,5 +1,5 @@
-Copying tests/userprog/bad-read into /tmp/ts73Xz2uH4.dsk...
-Writing command line to /tmp/IaEX0FbJKL.dsk...
+Copying tests/userprog/bad-read into /tmp/4gZJOdoc1U.dsk...
+Writing command line to /tmp/uIZkmYQu5Y.dsk...
 warning: can't find squish-pty, so terminal input will fail
 bochs -q
 Kernel command line: -q -f put bad-read run bad-read
@@ -25,13 +25,13 @@ Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x80480a6
  cs=001b ds=0023 es=0023 ss=0023
 bad-read: exit(-1)
 Execution of 'bad-read' complete.
-Timer: 356 ticks
-Thread: 30 idle ticks, 242 kernel ticks, 87 user ticks
+Timer: 369 ticks
+Thread: 30 idle ticks, 252 kernel ticks, 90 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 59 reads, 204 writes
-hd1:0: 98 reads, 0 writes
+hd0:1: 59 reads, 216 writes
+hd1:0: 104 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1249 characters output
+Console: 1250 characters output
 Keyboard: 0 keys pressed
 Exception: 6 page faults
 Powering off...

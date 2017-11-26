@@ -13,10 +13,10 @@ Differences in `diff -u' format:
 - (mmap-read) end
 + Page fault at 0x10000000: not present error reading page in user context.
 + mmap-read: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-+ Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x804812a
++ Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x8048128
 +  cr2=10000000 error=00000004
-+  eax=00000000 ebx=00000003 ecx=0000031a edx=0804c000
-+  esi=10000000 edi=0804bcc0 esp=bfffff70 ebp=bfffff98
++  eax=00000000 ebx=00000003 ecx=0000031a edx=10000000
++  esi=10000000 edi=0804bc40 esp=bfffff70 ebp=bfffff98
 +  cs=001b ds=0023 es=0023 ss=0023
 
 (Process exit codes are excluded for matching purposes.)

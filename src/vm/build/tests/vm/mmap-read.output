@@ -1,6 +1,6 @@
-Copying tests/vm/mmap-read into /tmp/ZrFTkaSFY6.dsk...
-Copying ../../tests/vm/sample.txt into /tmp/ZrFTkaSFY6.dsk...
-Writing command line to /tmp/WHSwkQexi4.dsk...
+Copying tests/vm/mmap-read into /tmp/x8atyq9_dj.dsk...
+Copying ../../tests/vm/sample.txt into /tmp/x8atyq9_dj.dsk...
+Writing command line to /tmp/mbmraS8LTl.dsk...
 warning: can't find squish-pty, so terminal input will fail
 bochs -q
 Kernel command line: -q -f put mmap-read put sample.txt run mmap-read
@@ -22,18 +22,18 @@ Executing 'mmap-read':
 (mmap-read) mmap "sample.txt"
 Page fault at 0x10000000: not present error reading page in user context.
 mmap-read: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x804812a
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x8048128
  cr2=10000000 error=00000004
- eax=00000000 ebx=00000003 ecx=0000031a edx=0804c000
- esi=10000000 edi=0804bcc0 esp=bfffff70 ebp=bfffff98
+ eax=00000000 ebx=00000003 ecx=0000031a edx=10000000
+ esi=10000000 edi=0804bc40 esp=bfffff70 ebp=bfffff98
  cs=001b ds=0023 es=0023 ss=0023
 mmap-read: exit(-1)
 Execution of 'mmap-read' complete.
-Timer: 407 ticks
-Thread: 30 idle ticks, 279 kernel ticks, 101 user ticks
+Timer: 423 ticks
+Thread: 30 idle ticks, 292 kernel ticks, 104 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 99 reads, 218 writes
-hd1:0: 104 reads, 0 writes
+hd0:1: 99 reads, 230 writes
+hd1:0: 110 reads, 0 writes
 hd1:1: 0 reads, 0 writes
 Console: 1388 characters output
 Keyboard: 0 keys pressed

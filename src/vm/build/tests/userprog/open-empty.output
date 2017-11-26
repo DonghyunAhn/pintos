@@ -1,5 +1,5 @@
-Copying tests/userprog/open-empty into /tmp/qcbXpK7NVv.dsk...
-Writing command line to /tmp/HTBtokohr9.dsk...
+Copying tests/userprog/open-empty into /tmp/dcYPa9I0dp.dsk...
+Writing command line to /tmp/hioP8uZMBk.dsk...
 warning: can't find squish-pty, so terminal input will fail
 bochs -q
 Kernel command line: -q -f put open-empty run open-empty
@@ -19,13 +19,13 @@ Executing 'open-empty':
 (open-empty) end
 open-empty: exit(0)
 Execution of 'open-empty' complete.
-Timer: 327 ticks
-Thread: 30 idle ticks, 244 kernel ticks, 56 user ticks
+Timer: 341 ticks
+Thread: 30 idle ticks, 253 kernel ticks, 61 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 76 reads, 204 writes
-hd1:0: 98 reads, 0 writes
+hd0:1: 76 reads, 216 writes
+hd1:0: 104 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 921 characters output
+Console: 922 characters output
 Keyboard: 0 keys pressed
 Exception: 5 page faults
 Powering off...

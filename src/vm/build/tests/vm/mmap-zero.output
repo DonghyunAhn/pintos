@@ -1,5 +1,5 @@
-Copying tests/vm/mmap-zero into /tmp/hupDjstlwL.dsk...
-Writing command line to /tmp/CDHr5jF9qJ.dsk...
+Copying tests/vm/mmap-zero into /tmp/LzHGGlJN6V.dsk...
+Writing command line to /tmp/J0EdbZL0LV.dsk...
 warning: can't find squish-pty, so terminal input will fail
 bochs -q
 Kernel command line: -q -f put mmap-zero run mmap-zero
@@ -23,18 +23,18 @@ Page fault at 0x7f000000: not present error reading page in user context.
 mmap-zero: dying due to interrupt 0x0e (#PF Page-Fault Exception).
 Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x804811e
  cr2=7f000000 error=00000004
- eax=00000019 ebx=00000003 ecx=00000019 edx=0804bc20
+ eax=00000003 ebx=00000003 ecx=0804bbc0 edx=7f000000
  esi=00000000 edi=00000000 esp=bfffff80 ebp=bfffff98
  cs=001b ds=0023 es=0023 ss=0023
 mmap-zero: exit(-1)
 Execution of 'mmap-zero' complete.
-Timer: 395 ticks
-Thread: 30 idle ticks, 247 kernel ticks, 121 user ticks
+Timer: 412 ticks
+Thread: 30 idle ticks, 259 kernel ticks, 126 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 85 reads, 208 writes
-hd1:0: 98 reads, 0 writes
+hd0:1: 85 reads, 220 writes
+hd1:0: 104 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1355 characters output
+Console: 1356 characters output
 Keyboard: 0 keys pressed
 Exception: 6 page faults
 Powering off...

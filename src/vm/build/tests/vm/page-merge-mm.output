@@ -1,6 +1,6 @@
-Copying tests/vm/page-merge-mm into /tmp/EUWtsdnGM1.dsk...
-Copying tests/vm/child-qsort-mm into /tmp/EUWtsdnGM1.dsk...
-Writing command line to /tmp/wY7gwqIxd7.dsk...
+Copying tests/vm/page-merge-mm into /tmp/gqDsZW8b6u.dsk...
+Copying tests/vm/child-qsort-mm into /tmp/gqDsZW8b6u.dsk...
+Writing command line to /tmp/azoIT5hllF.dsk...
 warning: can't find squish-pty, so terminal input will fail
 bochs -q
 Kernel command line: -q -f put page-merge-mm put child-qsort-mm run page-merge-mm
@@ -21,87 +21,87 @@ Executing 'page-merge-mm':
 (page-merge-mm) init
 (page-merge-mm) sort chunk 0
 (page-merge-mm) sort chunk 1
-Page fault at 0x10000000: not present error reading page in user context.
+Page fault at 0x10000001: not present error reading page in user context.
 child-qsort-mm: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x80481e7
- cr2=10000000 error=00000004
- eax=bffffffb ebx=bfffffd0 ecx=bfffffb8 edx=10000000
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x80481eb
+ cr2=10000001 error=00000004
+ eax=00000003 ebx=bfffffd0 ecx=bfffffb8 edx=10000000
  esi=00000003 edi=bfffffd4 esp=bfffff50 ebp=bfffff88
  cs=001b ds=0023 es=0023 ss=0023
 child-qsort-mm: exit(-1)
 (page-merge-mm) sort chunk 2
-Page fault at 0x10000000: not present error reading page in user context.
+Page fault at 0x10000001: not present error reading page in user context.
 child-qsort-mm: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x80481e7
- cr2=10000000 error=00000004
- eax=bffffffb ebx=bfffffd0 ecx=bfffffb8 edx=10000000
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x80481eb
+ cr2=10000001 error=00000004
+ eax=00000003 ebx=bfffffd0 ecx=bfffffb8 edx=10000000
  esi=00000003 edi=bfffffd4 esp=bfffff50 ebp=bfffff88
  cs=001b ds=0023 es=0023 ss=0023
 child-qsort-mm: exit(-1)
 (page-merge-mm) sort chunk 3
-Page fault at 0x10000000: not present error reading page in user context.
+Page fault at 0x10000001: not present error reading page in user context.
 child-qsort-mm: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x80481e7
- cr2=10000000 error=00000004
- eax=bffffffb ebx=bfffffd0 ecx=bfffffb8 edx=10000000
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x80481eb
+ cr2=10000001 error=00000004
+ eax=00000003 ebx=bfffffd0 ecx=bfffffb8 edx=10000000
  esi=00000003 edi=bfffffd4 esp=bfffff50 ebp=bfffff88
  cs=001b ds=0023 es=0023 ss=0023
 child-qsort-mm: exit(-1)
 (page-merge-mm) sort chunk 4
-Page fault at 0x10000000: not present error reading page in user context.
+Page fault at 0x10000001: not present error reading page in user context.
 child-qsort-mm: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x80481e7
- cr2=10000000 error=00000004
- eax=bffffffb ebx=bfffffd0 ecx=bfffffb8 edx=10000000
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x80481eb
+ cr2=10000001 error=00000004
+ eax=00000003 ebx=bfffffd0 ecx=bfffffb8 edx=10000000
  esi=00000003 edi=bfffffd4 esp=bfffff50 ebp=bfffff88
  cs=001b ds=0023 es=0023 ss=0023
 child-qsort-mm: exit(-1)
 (page-merge-mm) sort chunk 5
-Page fault at 0x10000000: not present error reading page in user context.
+Page fault at 0x10000001: not present error reading page in user context.
 child-qsort-mm: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x80481e7
- cr2=10000000 error=00000004
- eax=bffffffb ebx=bfffffd0 ecx=bfffffb8 edx=10000000
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x80481eb
+ cr2=10000001 error=00000004
+ eax=00000003 ebx=bfffffd0 ecx=bfffffb8 edx=10000000
  esi=00000003 edi=bfffffd4 esp=bfffff50 ebp=bfffff88
  cs=001b ds=0023 es=0023 ss=0023
 child-qsort-mm: exit(-1)
 (page-merge-mm) sort chunk 6
-Page fault at 0x10000000: not present error reading page in user context.
+Page fault at 0x10000001: not present error reading page in user context.
 child-qsort-mm: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x80481e7
- cr2=10000000 error=00000004
- eax=bffffffb ebx=bfffffd0 ecx=bfffffb8 edx=10000000
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x80481eb
+ cr2=10000001 error=00000004
+ eax=00000003 ebx=bfffffd0 ecx=bfffffb8 edx=10000000
  esi=00000003 edi=bfffffd4 esp=bfffff50 ebp=bfffff88
  cs=001b ds=0023 es=0023 ss=0023
 child-qsort-mm: exit(-1)
 (page-merge-mm) sort chunk 7
-Page fault at 0x10000000: not present error reading page in user context.
+Page fault at 0x10000001: not present error reading page in user context.
 child-qsort-mm: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x80481e7
- cr2=10000000 error=00000004
- eax=bffffffb ebx=bfffffd0 ecx=bfffffb8 edx=10000000
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x80481eb
+ cr2=10000001 error=00000004
+ eax=00000003 ebx=bfffffd0 ecx=bfffffb8 edx=10000000
  esi=00000003 edi=bfffffd4 esp=bfffff50 ebp=bfffff88
  cs=001b ds=0023 es=0023 ss=0023
 child-qsort-mm: exit(-1)
 (page-merge-mm) wait for child 0
 (page-merge-mm) wait for child 0: FAILED
 page-merge-mm: exit(1)
-Page fault at 0x10000000: not present error reading page in user context.
+Page fault at 0x10000001: not present error reading page in user context.
 child-qsort-mm: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x80481e7
- cr2=10000000 error=00000004
- eax=bffffffb ebx=bfffffd0 ecx=bfffffb8 edx=10000000
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x80481eb
+ cr2=10000001 error=00000004
+ eax=00000003 ebx=bfffffd0 ecx=bfffffb8 edx=10000000
  esi=00000003 edi=bfffffd4 esp=bfffff50 ebp=bfffff88
  cs=001b ds=0023 es=0023 ss=0023
 child-qsort-mm: exit(-1)
 Execution of 'page-merge-mm' complete.
-Timer: 7116 ticks
-Thread: 29 idle ticks, 958 kernel ticks, 6132 user ticks
+Timer: 7199 ticks
+Thread: 30 idle ticks, 1109 kernel ticks, 6063 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 680 reads, 4564 writes
-hd1:0: 213 reads, 0 writes
+hd0:1: 664 reads, 4588 writes
+hd1:0: 225 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 4510 characters output
+Console: 4511 characters output
 Keyboard: 0 keys pressed
-Exception: 293 page faults
+Exception: 294 page faults
 Powering off...

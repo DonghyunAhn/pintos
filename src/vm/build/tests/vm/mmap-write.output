@@ -1,5 +1,5 @@
-Copying tests/vm/mmap-write into /tmp/xHbxQyGJcw.dsk...
-Writing command line to /tmp/Cc3ufcCeNE.dsk...
+Copying tests/vm/mmap-write into /tmp/2CLlMuz7ng.dsk...
+Writing command line to /tmp/kuwCwRCj2h.dsk...
 warning: can't find squish-pty, so terminal input will fail
 bochs -q
 Kernel command line: -q -f put mmap-write run mmap-write
@@ -21,18 +21,18 @@ Executing 'mmap-write':
 (mmap-write) mmap "sample.txt"
 Page fault at 0x10000000: not present error writing page in user context.
 mmap-write: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x8049cf4
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x8049c8c
  cr2=10000000 error=00000006
- eax=0000003d ebx=10000000 ecx=0000031a edx=00000000
- esi=0804bd00 edi=0804c01b esp=bffffb40 ebp=bffffb68
+ eax=0000003d ebx=0000031a ecx=0804bc80 edx=00000000
+ esi=10000000 edi=10000000 esp=bffffb40 ebp=bffffb68
  cs=001b ds=0023 es=0023 ss=0023
 mmap-write: exit(-1)
 Execution of 'mmap-write' complete.
-Timer: 401 ticks
-Thread: 30 idle ticks, 249 kernel ticks, 125 user ticks
+Timer: 417 ticks
+Thread: 30 idle ticks, 261 kernel ticks, 129 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 95 reads, 216 writes
-hd1:0: 101 reads, 0 writes
+hd0:1: 94 reads, 228 writes
+hd1:0: 107 reads, 0 writes
 hd1:1: 0 reads, 0 writes
 Console: 1371 characters output
 Keyboard: 0 keys pressed

@@ -1,5 +1,5 @@
-Copying tests/userprog/halt into /tmp/CBLACWfhTt.dsk...
-Writing command line to /tmp/VdtC2HvV7F.dsk...
+Copying tests/userprog/halt into /tmp/VnEAFzyTee.dsk...
+Writing command line to /tmp/CmnpsTPXIW.dsk...
 warning: can't find squish-pty, so terminal input will fail
 bochs -q
 Kernel command line: -q -f put halt run halt
@@ -16,13 +16,13 @@ Boot complete.
 Putting 'halt' into the file system...
 Executing 'halt':
 (halt) begin
-Timer: 274 ticks
-Thread: 30 idle ticks, 212 kernel ticks, 35 user ticks
+Timer: 280 ticks
+Thread: 30 idle ticks, 218 kernel ticks, 35 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 59 reads, 202 writes
-hd1:0: 97 reads, 0 writes
+hd0:1: 59 reads, 214 writes
+hd1:0: 103 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 818 characters output
+Console: 819 characters output
 Keyboard: 0 keys pressed
-Exception: 5 page faults
+Exception: 4 page faults
 Powering off...

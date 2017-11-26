@@ -593,7 +593,7 @@ init_thread (struct thread *t, const char *name, int priority)
 
 #ifdef VM
   lock_init(&t->spt_lock);
-
+  list_init(&t->mmap_list);
 
 #endif
 

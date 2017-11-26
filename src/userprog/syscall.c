@@ -38,6 +38,11 @@ void seek (int fd, unsigned position);
 unsigned tell (int fd);
 void close (int fd);
 
+
+//added on 3-2
+mapid_t mmap(int fd,void *); 
+void munmap(mapid_t mmapid);
+
 static int get_user (const uint8_t *uaddr);
 static bool put_user (uint8_t *udst, uint8_t byte);
 void busy_true(void * buffer, size_t size);
@@ -46,6 +51,7 @@ struct semaphore filesema;
 
 /* Helper function */
 struct file_descriptor* fd_to_file(struct thread* t, int fd);
+struct mmap_descriptor *mapid_to_mmapd(struct thread* t, mapid_t md);
 
 void
 syscall_init (void) 
@@ -136,7 +142,13 @@ syscall_handler (struct intr_frame *f)
       
       close(*(int *)(f->esp + 4));
       break;
+    case SYS_MMAP:
 
+      f->eax = mmap(*(int *)(f->esp + 4), *(void **)(f->esp +8));
+      break;
+    case SYS_MUNMAP:
+      munmap(*(int*)(f->esp+4));
+      break;
   }
   
 }
@@ -169,7 +181,7 @@ exit (int status)
       }
     }
   }
-
+  //printf("%d\n", cur->tid);
   printf("%s: exit(%d)\n",cur->name, status);
   thread_exit();
 }
@@ -184,6 +196,7 @@ exec (const char *cmd_line)
   
   sema_down(&cur->loadsema);
   tid_t tid = process_execute(cmd_line);
+  //sema_down(&cur->loadsema);
   lock_acquire(&cur->loadlock);
   while(cur->child_exec != 0 && cur->child_exec != 1)
     cond_wait(&cur->loadcond, &cur->loadlock);
@@ -198,7 +211,7 @@ exec (const char *cmd_line)
 int 
 wait (tid_t tid)
 {
-
+  
   return process_wait(tid);
 
 }
@@ -206,8 +219,10 @@ wait (tid_t tid)
 bool 
 create (const char *file, unsigned initial_size)
 {
-  if(!valid_user_addr(file) || get_user(file + initial_size -1) == -1)
+  if(file == NULL || get_user(file) == -1){
     exit(-1);
+  }
+
   //sema_down(&filesema);
   bool success = filesys_create(file, initial_size);
   //sema_up(&filesema);
@@ -367,6 +382,151 @@ close (int fd)
 
 
 }
+mapid_t mmap(int fd, void * addr){
+  mapid_t err;
+  err = ((mapid_t) -1);
+
+  //3-2 implementation
+  if (addr ==NULL || pg_ofs(addr)||fd<=1) goto ERROR;
+  struct thread * cur = thread_current();
+  struct file *f = NULL;
+  struct file_descriptor * file_d = fd_to_file(cur,fd);
+  //if (file_d->dir !=NULL) goto ERROR;//file_d should be NULL -> ERROR
+  if (file_d==NULL || file_d->file==NULL) goto ERROR;
+  f = file_reopen(file_d->file);
+  if (f==NULL) goto ERROR;
+  size_t file_size = file_length(f);
+  if(file_size==0) goto ERROR;
+
+  //mapping filesystem <-> page
+  //check all the page addr's are not using
+  size_t offset;
+  for (offset=0;offset<file_size;offset+=PGSIZE){
+    void * temp_addr = addr+offset;
+    //one line?
+    if(spt_find(cur,temp_addr)!=NULL) goto ERROR;
+  }
+
+  for (offset =0; offset<file_size;offset+=PGSIZE){
+    void * temp_addr = addr+offset;
+    size_t read_byte = PGSIZE;
+    if (offset+PGSIZE>=file_size) read_byte = file_size-offset;
+    //from here
+    struct suppl_pte *spte;
+    spte = (struct suppl_pte *) malloc(sizeof(struct suppl_pte));
+    spte->upage = temp_addr;
+    spte->kpage = NULL;
+    spte->status = FROM_FILE;
+    spte->file = f;
+    spte->offset = offset;
+    spte->read_bytes = read_byte;
+    spte->writable = true;
+    spte->fte = NULL;
+    //change it
+    struct hash_elem *e;
+    e = hash_insert(&cur->suppl_page_table, &spte->helem);
+  }
+
+  //assign it
+  mapid_t mid=1;
+  if (!list_empty(&cur->mmap_list))
+		mid += list_entry(list_back(&cur->mmap_list), struct mmap_descriptor, elem);
+
+  struct mmap_descriptor *mmap_d = (struct mmap_descriptor *) malloc(sizeof(struct mmap_descriptor));
+  mmap_d -> id =mid;
+  mmap_d -> file =f;
+  mmap_d -> addr = addr;
+  mmap_d -> size = file_size;
+  list_push_back(&cur->mmap_list, &mmap_d->elem);
+  return mid;
+
+  ERROR:
+  return err;
+}
+
+
+void munmap(mapid_t mapping){
+
+  struct thread * cur = thread_current();
+  struct mmap_descriptor * mmap_d = mapid_to_mmapd(cur, mapping);
+
+  ASSERT(mmap_d != NULL);
+  size_t offset;
+  size_t file_size = mmap_d->size;
+  for(offset=0; offset<file_size; offset+=PGSIZE){
+
+    size_t file_bytes;
+    if(offset + PGSIZE < file_size){
+      file_bytes = PGSIZE;
+    }
+    else
+      file_bytes = file_size - offset;
+
+    void *addr = mmap_d->addr + offset;
+    struct suppl_pte * spte = spt_find(cur, addr);
+    uint32_t * pagedir  = cur->pagedir;
+
+    ASSERT(spte != NULL);
+    if(spte->status == IN_MEMORY)
+      frame_set_busy(spte->fte);
+
+    void * temp;
+    switch(spte->status)
+    {
+      case IN_MEMORY: // need discussion on is_dirty
+        if(pagedir_is_dirty(pagedir,spte->upage)){
+          file_write_at(mmap_d->file, spte->upage, file_bytes, offset);
+        }
+        frame_remove(spte->fte);
+        spte->fte = NULL;
+        pagedir_clear_page(pagedir, spte->upage);
+        break;
+
+      case IN_SWAP:
+        if(pagedir_is_dirty(pagedir, spte->upage)){
+          temp = palloc_get_page(0);
+          swap_in(spte->swap_index, temp);
+          file_write_at(mmap_d->file, temp, file_bytes, offset);
+          palloc_free_page(temp);
+
+        }
+        else
+          swap_free(spte);
+				break;
+      case FROM_FILE:
+        break;
+      case STACK_GROWTH:
+        break;
+      default:
+        ASSERT(false);
+    }
+
+    hash_delete(&cur->suppl_page_table, &spte->helem);
+  }
+
+  list_remove(&mmap_d->elem);
+  file_close(mmap_d->file);
+  free(mmap_d);
+}
+
+
+struct mmap_descriptor *mapid_to_mmapd(struct thread* t, mapid_t md){
+  if(list_empty(&t->mmap_list))
+    return NULL;
+  struct list_elem *e;
+  for(e = list_head(&t->mmap_list); e != list_tail(&t->mmap_list); e = list_next(e)){
+
+    struct mmap_descriptor * matched = list_entry(e, struct mmap_descriptor, elem);
+    if(matched->id == md){
+
+      return matched;
+    }
+
+
+  }
+  return NULL;
+}				
+
 
 struct file_descriptor *fd_to_file(struct thread* t, int fd)
 {
